@@ -96,7 +96,7 @@ public class TestDb extends AndroidTestCase {
     static ContentValues createFilmValues() {
 
         // Test data we're going to insert into the DB to see if it works.
-        String title = "braveheart";
+        String title = "LOL";
         String year = "2000";
         String rated = "N/A";
         String country = "USA";
@@ -122,7 +122,7 @@ public class TestDb extends AndroidTestCase {
         values.put(FilmEntry.VOTES, country);
         values.put(FilmEntry.POSTER_URL, title);
         values.put(FilmEntry.POSTER, year);
-        values.put(FilmEntry.WATCHED, rated);
+        values.put(FilmEntry.WATCHED, "false");
         values.put(FilmEntry.LANGUAGE, country);
         return values;
     }

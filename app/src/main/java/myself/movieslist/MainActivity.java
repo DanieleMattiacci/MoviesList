@@ -35,7 +35,6 @@ public class MainActivity extends ActionBarActivity {
         actionBar.setDisplayUseLogoEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);*/
         //orderBy=getOrderBy();
-        Log.i("","commit di prova");
     if(firstTime==false)InsertSomeFilm();
 
         if (savedInstanceState == null) {

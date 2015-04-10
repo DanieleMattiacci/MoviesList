@@ -5,36 +5,56 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class FilmProvider  extends ContentProvider {
 
-    // The URI Matcher used by this content provider.
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private FilmDbHelper mOpenHelper;
 
     private static final int FILM = 100;
-   /* private static final int WEATHER_WITH_LOCATION = 101;
-    private static final int WEATHER_WITH_LOCATION_AND_DATE = 102;
-    private static final int LOCATION = 300;
-    private static final int LOCATION_ID = 301;*/
+    private static final int FILM_WITH_TITLE= 101;
+
+    private static final SQLiteQueryBuilder FilmsQueryBuilder;
+
+    static{
+        FilmsQueryBuilder = new SQLiteQueryBuilder();
+        FilmsQueryBuilder.setTables(
+                FilmContract.FilmEntry.TABLE_NAME);
+    }
+
+    //location.location_setting = ? AND date = ?
+    private static final String sDaySelection =
+            FilmContract.FilmEntry.TABLE_NAME +"." + FilmContract.FilmEntry.TITLE_FILM + " = ? ";
+
+
+
+    private Cursor getFilmTitleFromUri(Uri uri, String[] projection, String sortOrder) {
+
+        String title = FilmContract.FilmEntry.getFilmTitleFromUri(uri);
+
+        Cursor c = FilmsQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                sDaySelection,
+                new String[]{title},
+                null,
+                null,
+                sortOrder
+        );
+        return  c;
+    }
+
 
     private static UriMatcher buildUriMatcher() {
-        // I know what you're thinking.  Why create a UriMatcher when you can use regular
-        // expressions instead?  Because you're not crazy, that's why.
-
-        // All paths added to the UriMatcher have a corresponding code to return when a match is
-        // found.  The code passed into the constructor represents the code to return for the root
-        // URI.  It's common to use NO_MATCH as the code for this case.
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = FilmContract.CONTENT_AUTHORITY;
 
-        // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, FilmContract.PATH_FILM, FILM);
+        matcher.addURI(authority, FilmContract.PATH_FILM + "/*", FILM_WITH_TITLE);
 
         return matcher;
     }
-
 
     @Override
     public boolean onCreate() {
@@ -45,10 +65,14 @@ public class FilmProvider  extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
-        // Here's the switch statement that, given a URI, will determine what kind of request it is,
-        // and query the database accordingly.
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
+            // "weather/title_film"
+            case FILM_WITH_TITLE: {
+                retCursor = getFilmTitleFromUri(uri, projection, sortOrder);
+                break;
+            }
+            // "weather"
             case FILM: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         FilmContract.FilmEntry.TABLE_NAME,
@@ -70,10 +94,11 @@ public class FilmProvider  extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        // Use the Uri Matcher to determine what kind of URI this is.
         final int match = sUriMatcher.match(uri);
 
         switch (match) {
+            case FILM_WITH_TITLE:
+                return FilmContract.FilmEntry.CONTENT_TYPE;
             case FILM:
                 return FilmContract.FilmEntry.CONTENT_TYPE;
             default:

@@ -8,26 +8,11 @@ import android.provider.BaseColumns;
  * Created by daniele on 08/04/15.
  */
 public class FilmContract {
-
-    // The "Content authority" is a name for the entire content provider, similar to the
-    // relationship between a domain name and its website.  A convenient string to use for the
-    // content authority is the package name for the app, which is guaranteed to be unique on the
-    // device.
     public static final String CONTENT_AUTHORITY = "myself.movieslist";
-
-    // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
-    // the content provider.
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
-
-    // Possible paths (appended to base content URI for possible URI's)
-    // For instance, content://com.example.android.sunshine.app/weather/ is a valid path for
-    // looking at weather data. content://com.example.android.sunshine.app/givemeroot/ will fail,
-    // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
-    // At least, let's hope not.  Don't be that dev, reader.  Don't be that dev.
     public static final String PATH_FILM = "film";
 
-     /* Inner class that defines the table contents of the film table */
-    public static final class FilmEntry implements BaseColumns {
+   public static final class FilmEntry implements BaseColumns {
          public static final Uri CONTENT_URI =BASE_CONTENT_URI.buildUpon().appendPath(PATH_FILM).build();
 
         public static final String CONTENT_TYPE ="vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_FILM;
@@ -60,5 +45,13 @@ public class FilmContract {
          public static Uri buildFilmUri(long id) {
              return ContentUris.withAppendedId(CONTENT_URI, id);
          }
+       public static Uri buildFilmTitle(String titleFilm) {
+           return CONTENT_URI.buildUpon().appendPath(titleFilm).build();
+       }
+
+       public static String getFilmTitleFromUri(Uri uri) {
+           return uri.getPathSegments().get(1);
+       }
+
     }
 }
