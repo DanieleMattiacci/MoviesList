@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+   <!-- <EditTextPreference
+        android:title="@string/pref_location_label"
+        android:key="@string/pref_location_key"
+        android:defaultValue="@string/pref_location_default"
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <ListPreference
+        android:title="@string/pref_units_label"
+        android:key="@string/pref_units_key"
+        android:defaultValue="@string/pref_units_metric"
+        android:entryValues="@array/pref_units_values"
+        android:entries="@array/pref_units_options" />
+-->
+
+    <ListPreference
+        android:title="@string/pref_plot_label"
+        android:key="@string/pref_plot_key"
+        android:defaultValue="@string/pref_plot_short"
+        android:entryValues="@array/pref_plot_values"
+        android:entries="@array/pref_plot_options" />
+
+
+    <ListPreference
+        android:title="@string/pref_orber_by_label"
+        android:key="@string/pref_order_by_key"
+        android:defaultValue="@string/pref_order_by_rating"
+        android:entryValues="@array/pref_order_by_values"
+        android:entries="@array/pref_order_by_options" />
+
+</PreferenceScreen>

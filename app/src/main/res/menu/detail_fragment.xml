@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_share"
+        android:title="@string/action_share"
+        app:showAsAction="always"
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
+    <item android:id="@+id/action_search_film"
+        android:title="@string/action_search_film"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="always"/>
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_watch_trailer"
+        android:title="@string/action_watch_trailer"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_watched_film"
+        android:title="@string/action_watched_film"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_remove_film"
+        android:title="@string/action_remove_film"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+
+</menu>
