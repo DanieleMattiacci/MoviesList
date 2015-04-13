@@ -1,9 +1,12 @@
 package myself.movieslist;
 
 import android.app.AlertDialog;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +37,7 @@ import java.util.ArrayList;
 
 import myself.movieslist.data.DBUtility;
 import myself.movieslist.data.FilmAdapter;
+import myself.movieslist.data.database.FilmContract;
 import myself.movieslist.data.pojo.ResponseFilm;
 
 public class FilmFragment  extends Fragment {
@@ -64,20 +68,9 @@ public class FilmFragment  extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-       /* if (id == R.id.action_refresh) {
-            return true;
-        }*/
         if (id == R.id.action_search_film) {
-
-
-            //new SearchDialog().show();
             RunSearchDialog();
-            //  Toast.makeText(getApplicationContext(), "premuto Search", Toast.LENGTH_SHORT).show();
-            // startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }else  if (id == R.id.action_settings) {
             startActivity(new Intent(mActivity, SettingsActivity.class));
@@ -113,25 +106,17 @@ public class FilmFragment  extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-     /*   mFilmAdapter = new ArrayAdapter<String>(
-                        getActivity(), // The current context (this activity)
-                        R.layout.list_item_film, // The name of the layout ID.
-                        R.id.list_item_title_textview, // The ID of the textview to populate.
-                        new ArrayList<String>());*/
-
         View rootView = inflater.inflate(R.layout.fragment_film, container, false);
         orderBy=getOrderBy();
         appView=rootView;
-      //  Log.i("","In fragment crate view: ");
 
         DBUtility dbUtil= new DBUtility();
         movies=dbUtil.ReadDb(rootView.getContext(), orderBy);
-      //  Log.i("","movies.size() fragment: "+movies.size());
+
         mFilmAdapter = new FilmAdapter(rootView.getContext(),R.layout.list_item_film,movies,orderBy);
         // Get a reference to the ListView, and attach this adapter to it.
         listView = (ListView) rootView.findViewById(R.id.listview_film);
-//for(int i=0;i<movies.size();i++) Log.i("","Elem Title: "+movies.get(i).getTitle());
+
         listView.setAdapter(mFilmAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -202,10 +187,8 @@ public class FilmFragment  extends Fragment {
 
             String year = "";
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity.getApplicationContext());
-           /* String location = prefs.getString(getString(R.string.pref_location_key),
-                    getString(R.string.pref_location_default));*/
-            String plot = prefs.getString(getString(R.string.pref_plot_key),
-                    getString(R.string.pref_plot_short));
+
+            String plot = prefs.getString(getString(R.string.pref_plot_key),getString(R.string.pref_plot_short));
             String response = "json";
 
             try {
@@ -276,12 +259,11 @@ public class FilmFragment  extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             DBUtility dbUtil = new DBUtility();
+
             int inserted = dbUtil.insertFilm(result[0], mActivity.getApplicationContext());
             if (inserted == 1) {
-               // DBUtility dbUtil= new DBUtility();
                 orderBy=getOrderBy();
                 movies=dbUtil.ReadDb(appView.getContext(), orderBy);
-                //  Log.i("","movies.size() fragment: "+movies.size());
                 mFilmAdapter = new FilmAdapter(appView.getContext(),R.layout.list_item_film,movies,orderBy);
                 listView.setAdapter(mFilmAdapter);
                 Toast.makeText(mActivity.getApplicationContext(), "Movie added to the list", Toast.LENGTH_SHORT).show();
@@ -293,9 +275,3 @@ public class FilmFragment  extends Fragment {
         }
     }
 }
-
-/*
-*  for(String dayForecastStr : result) {
-                    mFilmAdapter.add(dayForecastStr);
-                }
-                */

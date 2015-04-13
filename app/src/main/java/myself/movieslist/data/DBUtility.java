@@ -1,125 +1,100 @@
 package myself.movieslist.data;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.test.AndroidTestCase;
 
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import myself.movieslist.data.database.FilmContract;
 import myself.movieslist.data.database.FilmContract.FilmEntry;
 import myself.movieslist.data.database.FilmDbHelper;
 import myself.movieslist.data.pojo.ResponseFilm;
 
 
 public class DBUtility extends AndroidTestCase {
-
-
-  /*  private long addLocation(String locationSetting, String cityName, double lat, double lon) {
-
-        Log.v(LOG_TAG, "inserting " + cityName + ", with coord: " + lat + ", " + lon);
-
-        // First, check if the location with this city name exists in the db
-        Cursor cursor = mContext.getContentResolver().query(
-                LocationEntry.CONTENT_URI,
-                new String[]{LocationEntry._ID},
-                LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
-                new String[]{locationSetting},
-                null);
-
-        if (cursor.moveToFirst()) {
-            Log.v(LOG_TAG, "Found it in the database!");
-            int locationIdIndex = cursor.getColumnIndex(LocationEntry._ID);
-            return cursor.getLong(locationIdIndex);
-        } else {
-            Log.v(LOG_TAG, "Didn't find it in the database, inserting now!");
-            ContentValues locationValues = new ContentValues();
-            locationValues.put(LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
-            locationValues.put(LocationEntry.COLUMN_CITY_NAME, cityName);
-            locationValues.put(LocationEntry.COLUMN_COORD_LAT, lat);
-            locationValues.put(LocationEntry.COLUMN_COORD_LONG, lon);
-
-            Uri locationInsertUri = mContext.getContentResolver()
-                    .insert(LocationEntry.CONTENT_URI, locationValues);
-
-            return ContentUris.parseId(locationInsertUri);
-        }
-    }*/
 /*
 * 0, not inserted
 * 1, inserted
 * 2, alreadyPresent
 * */
     public int insertFilm(String jsonFilm, Context context) {
-
         int resp=0;
 
-        boolean present=alreadyPresent(jsonFilm,context);
-//Log.i("","Present: "+present);
+        boolean present=alreadyPresent(jsonFilm, context);
         if(present==false) {
             boolean insertedSuccessful = false;
 
-            FilmDbHelper dbHelper = new FilmDbHelper(context);
-
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-
             ContentValues testValues = CreateFilmValues(jsonFilm);
 
-            long filmRowId = db.insert(FilmEntry.TABLE_NAME, null, testValues);
+            Uri filmnUri = context.getContentResolver().insert(FilmContract.FilmEntry.CONTENT_URI, testValues);
+            long filmRowId = ContentUris.parseId(filmnUri);
 
             if (filmRowId != -1) insertedSuccessful = true;
-
-            db.close();
 
             if (insertedSuccessful == true) return resp = 1;
             else return resp = 0;
         }else return resp=2;
-       // return resp;
-    }
-
-    public boolean deleteFilm(String film, Context context){
-        FilmDbHelper dbHelper = new FilmDbHelper(context);
-
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        return db.delete(FilmEntry.TABLE_NAME, FilmEntry.TITLE_FILM + "='" + film+"'", null)>0;
     }
 
     boolean alreadyPresent(String jsonFilm,Context context){
         String title=getTitleFromJson(jsonFilm);
-        FilmDbHelper dbHelper = new FilmDbHelper(context);
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String Query = "Select * from " + FilmEntry.TABLE_NAME + " where " + FilmEntry.TITLE_FILM + " = '" + title+"'";
-       // Log.i("",Query);
-            Cursor cursor = db.rawQuery(Query, null);
-            if(cursor.getCount() <= 0){
-                db.close();
-                return false;
-            }
-        db.close();
+            Cursor cursor = selectFilmByTitle(title,context);
+            if(cursor.getCount() <= 0)return false;
         return true;
     }
 
-    public ResponseFilm selectFilm(String title,Context context){
-        FilmDbHelper dbHelper = new FilmDbHelper(context);
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String Query = "Select * from " + FilmEntry.TABLE_NAME + " where " + FilmEntry.TITLE_FILM + " = '" + title+"'";
-        Cursor cursor = db.rawQuery(Query, null);
+    public ResponseFilm getFilm(String title,Context context){
+        Cursor cursor=selectFilmByTitle(title,context);
         ResponseFilm entry=CursorToResponseFilm(cursor);
         return entry;
     }
 
+    public Cursor selectFilmByTitle(String title,Context context){
+        String[] params = {title};
+
+        String[] columns = {
+                FilmEntry.TITLE_FILM,
+                FilmEntry.YEAR,
+                FilmEntry.RATED,
+                FilmEntry.RELEASED_DATE,
+                FilmEntry.RUNTIME,
+                FilmEntry.GENRE,
+                FilmEntry.DIRECTOR,
+                FilmEntry.WRITER,
+                FilmEntry.ACTOR,
+                FilmEntry.PLOT,
+                FilmEntry.AWARDS,
+                FilmEntry.RATING,
+                FilmEntry.METASCORE,
+                FilmEntry.VOTES,
+                FilmEntry.POSTER_URL,
+                FilmEntry.POSTER,
+                FilmEntry.WATCHED,
+        };
+
+        Cursor cursor = context.getContentResolver().query(
+                FilmEntry.CONTENT_URI,
+                columns, // leaving "columns" null just returns all the columns.
+                FilmContract.FilmEntry.TITLE_FILM+"=?", // cols for "where" clause
+                params, // values for "where" clause
+                null  // sort order
+        );
+        return cursor;
+    }
+
     public boolean updateWatchedFilm(String title,Context context) {
-        FilmDbHelper dbHelper = new FilmDbHelper(context);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(FilmEntry.WATCHED, "true");
-        return db.update(FilmEntry.TABLE_NAME, values, FilmEntry.TITLE_FILM + "='" + title+"'", null)>0;
+        return context.getContentResolver().update(
+                FilmEntry.CONTENT_URI, values, FilmEntry.TITLE_FILM + "= ?",
+                new String[] {title})>0;
     }
 
     ResponseFilm CursorToResponseFilm(Cursor cursor){
@@ -185,62 +160,26 @@ public class DBUtility extends AndroidTestCase {
 
     public ArrayList<ResponseFilm> ReadDb(Context context, String orderBy) {
         ArrayList<ResponseFilm> movies = new ArrayList<ResponseFilm>();
-        FilmDbHelper dbHelper = new FilmDbHelper(context);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+        Cursor cursor = getCursorOrdered(context,orderBy/*,db*/);
 
-
-        Cursor cursor = getCursorOrdered(orderBy,db);
-//Log.i("","Cursor Lenght: "+cursor.getCount());
-
-
-            if (cursor.moveToFirst()) {
-                if (cursor.getCount() == 1) {
-                    ResponseFilm entryFilm = new ResponseFilm();
-                    entryFilm.setTitle(cursor.getString(cursor.getColumnIndex(FilmEntry.TITLE_FILM)));
-                    entryFilm.setWatched(cursor.getString(cursor.getColumnIndex(FilmEntry.WATCHED)));
-                    if (orderBy.equals("rating")) {
-                        entryFilm.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.RATING)));
-                    } else if (orderBy.equals("metascore")) {
-                        entryFilm.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.METASCORE)));
-                    } else if (orderBy.equals("votes")) {
-                        entryFilm.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.VOTES)));
-                    }
-                   // Log.i("", "Added: " + entryFilm.getTitle()+" "+entryFilm.getImdbRating());
-                    movies.add(entryFilm);
-                    db.close();
-                    return movies;
-                } else {
-                    int i=0;
-                    do {
-                       // Log.i("", "Cursor title: " + cursor.getString(cursor.getColumnIndex(FilmEntry.TITLE_FILM)));
-                        ResponseFilm entryFilm = new ResponseFilm();
-                        entryFilm.setTitle(cursor.getString(cursor.getColumnIndex(FilmEntry.TITLE_FILM)));
-                        entryFilm.setWatched(cursor.getString(cursor.getColumnIndex(FilmEntry.WATCHED)));
-                        if (orderBy.equals("rating")) {
-                            entryFilm.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.RATING)));
-                        } else if (orderBy.equals("metascore")) {
-                            entryFilm.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.METASCORE)));
-                        } else if (orderBy.equals("votes")) {
-                            entryFilm.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.VOTES)));
-                        }
-                       // Log.i("", "Added: " + entryFilm.getTitle());
-                        movies.add(entryFilm);
-                       // i++;
-                        // cursor.moveToNext();
-                    }while(cursor.moveToNext());
-                    db.close();
-                    return movies;
-                }
-            }else{
-                db.close();
-                return null;
-            }
+        if (cursor.moveToFirst())
+            do {
+                ResponseFilm entryFilm = new ResponseFilm();
+                entryFilm.setTitle(cursor.getString(cursor.getColumnIndex(FilmEntry.TITLE_FILM)));
+                entryFilm.setWatched(cursor.getString(cursor.getColumnIndex(FilmEntry.WATCHED)));
+                if (orderBy.equals("rating"))
+                    entryFilm.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.RATING)));
+                else if (orderBy.equals("metascore"))
+                    entryFilm.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.METASCORE)));
+                else if (orderBy.equals("votes"))
+                    entryFilm.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.VOTES)));
+                movies.add(entryFilm);
+            }while(cursor.moveToNext());
+        return movies;
     }
 
-    Cursor getCursorOrdered(String orderBy,SQLiteDatabase db){
-        Cursor cursor = null;
-
+    Cursor getCursorOrdered(Context context,String orderBy/*,SQLiteDatabase db*/){
         String[] columns = {
                 FilmEntry.TITLE_FILM,
                 FilmEntry.RATING,
@@ -249,36 +188,13 @@ public class DBUtility extends AndroidTestCase {
                 FilmEntry.WATCHED,
         };
 
-        if (orderBy.equals("rating"))
-            cursor = db.query(
-                    FilmEntry.TABLE_NAME,  // Table to Query
-                    columns,
-                    null, // Columns for the "where" clause
-                    null, // Values for the "where" clause
-                    null, // columns to group by
-                    null, // columns to filter by row groups
-                    FilmEntry.RATING +" DESC"// sort order
-            );
-        else if (orderBy.equals("metascore"))
-            cursor = db.query(
-                    FilmEntry.TABLE_NAME,  // Table to Query
-                    columns,
-                    null, // Columns for the "where" clause
-                    null, // Values for the "where" clause
-                    null, // columns to group by
-                    null, // columns to filter by row groups
-                    FilmEntry.METASCORE+" DESC" // sort order
-            );
-        else if (orderBy.equals("votes"))
-            cursor = db.query(
-                    FilmEntry.TABLE_NAME,  // Table to Query
-                    columns,
-                    null, // Columns for the "where" clause
-                    null, // Values for the "where" clause
-                    null, // columns to group by
-                    null, // columns to filter by row groups
-                    FilmEntry.VOTES+" DESC" // sort order
-            );
+        Cursor cursor = context.getContentResolver().query(
+                FilmEntry.CONTENT_URI,
+                columns, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                orderBy+" DESC"  // sort order
+        );
         return cursor;
     }
 }

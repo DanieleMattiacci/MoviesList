@@ -28,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import myself.movieslist.data.DBUtility;
+import myself.movieslist.data.database.FilmContract;
 
 
 public class DetailActivity extends ActionBarActivity {
@@ -78,11 +79,12 @@ static String title_film;
             Intent i = new Intent(this, YouTubeApiPlayer.class);
             i.putExtra("title", title_film);
             startActivity(i);
-            //startActivity(new Intent(this, SettingsActivity.class));
-          //  Toast.makeText(getApplicationContext(), "Watch Trailer", Toast.LENGTH_SHORT).show();
             return true;
         }else if (id == R.id.action_remove_film) {
-            RemoveFilm();
+            String[] params = {title_film};
+            if(getApplicationContext().getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI,
+                    FilmContract.FilmEntry.TITLE_FILM+"=?",params)>0)
+                thisActivity.finish();
             return true;
         }else if (id == R.id.action_watched_film) {
             MarkWatched();
@@ -116,13 +118,6 @@ static String title_film;
         alert.show();
     }
 
-    void RemoveFilm(){
-        DBUtility dbUtil= new DBUtility();
-        boolean deleted=dbUtil.deleteFilm(title_film,getApplicationContext());
-        if(deleted==true){
-            thisActivity.finish();
-        }
-    }
     void MarkWatched(){
         DBUtility dbUtil= new DBUtility();
         boolean watched=dbUtil.updateWatchedFilm(title_film,getApplicationContext());
@@ -227,12 +222,6 @@ static String title_film;
             DBUtility dbUtil = new DBUtility();
             int inserted = dbUtil.insertFilm(result[0], getApplicationContext());
             if (inserted == 1) {
-                // DBUtility dbUtil= new DBUtility();
-              /*  orderBy=getOrderBy();
-                movies=dbUtil.ReadDb(appView.getContext(), orderBy);
-                //  Log.i("","movies.size() fragment: "+movies.size());
-                mFilmAdapter = new FilmAdapter(appView.getContext(),R.layout.list_item_film,movies,orderBy);
-                listView.setAdapter(mFilmAdapter);*/
                 Toast.makeText(getApplicationContext(), "Movie added to the list", Toast.LENGTH_SHORT).show();
             }
             else if (inserted == 0)

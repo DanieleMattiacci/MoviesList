@@ -68,7 +68,7 @@ public class DetailFragment extends Fragment {
             filmTitle = bundle.getString("title", "title");
 
             DBUtility dbutil= new DBUtility();
-            ResponseFilm entry=dbutil.selectFilm(filmTitle, getActivity().getApplicationContext());
+            ResponseFilm entry=dbutil.getFilm(filmTitle, getActivity().getApplicationContext());
 
             title=((TextView) rootView.findViewById(R.id.film_title));
             title.setText(entry.getTitle());
