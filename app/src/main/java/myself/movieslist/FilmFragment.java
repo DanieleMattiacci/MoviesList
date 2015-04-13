@@ -1,6 +1,7 @@
 package myself.movieslist;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -13,6 +14,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -40,7 +45,7 @@ import myself.movieslist.data.FilmAdapter;
 import myself.movieslist.data.database.FilmContract;
 import myself.movieslist.data.pojo.ResponseFilm;
 
-public class FilmFragment  extends Fragment {
+public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     FragmentActivity mActivity;
 
     static ArrayAdapter<ResponseFilm> mFilmAdapter;
@@ -48,6 +53,55 @@ public class FilmFragment  extends Fragment {
     String orderBy;
     View appView;
     ListView listView;
+
+    private static final int FILM_LOADER = 0;
+    private int mPosition = ListView.INVALID_POSITION;
+    private static final String SELECTED_KEY = "selected_position";
+
+    // For the forecast view we're showing only a small subset of the stored data.
+    // Specify the columns we need.
+    private static final String[] FILM_COLUMNS = {
+            //FilmContract.FilmEntry._ID,
+            FilmContract.FilmEntry.COLUMN_TITLE_FILM,
+            FilmContract.FilmEntry.COLUMN_YEAR,
+            FilmContract.FilmEntry.COLUMN_RATED,
+            FilmContract.FilmEntry.COLUMN_RELEASED_DATE,
+            FilmContract.FilmEntry.COLUMN_RUNTIME,
+            FilmContract.FilmEntry.COLUMN_GENRE,
+            FilmContract.FilmEntry.COLUMN_DIRECTOR,
+            FilmContract.FilmEntry.COLUMN_WRITER,
+            FilmContract.FilmEntry.COLUMN_ACTOR,
+            FilmContract.FilmEntry.COLUMN_PLOT,
+            FilmContract.FilmEntry.COLUMN_AWARDS,
+            FilmContract.FilmEntry.COLUMN_RATING,
+            FilmContract.FilmEntry.COLUMN_METASCORE,
+            FilmContract.FilmEntry.COLUMN_VOTES,
+            FilmContract.FilmEntry.COLUMN_POSTER_URL,
+            FilmContract.FilmEntry.COLUMN_POSTER,
+            FilmContract.FilmEntry.COLUMN_WATCHED,
+    };
+
+
+    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
+    // must change.
+    public static final int _ID=0;
+    public static final int COLUMN_TITLE_FILM=1;
+    public static final int COLUMN_YEAR=2;
+    public static final int COLUMN_RATED=3;
+    public static final int COLUMN_RELEASED_DATE=4;
+    public static final int COLUMN_RUNTIME=5;
+    public static final int COLUMN_GENRE=6;
+    public static final int COLUMN_DIRECTOR=7;
+    public static final int COLUMN_WRITER=8;
+    public static final int COLUMN_ACTOR=9;
+    public static final int COLUMN_PLOT=10;
+    public static final int COLUMN_AWARDS=11;
+    public static final int COLUMN_RATING=12;
+    public static final int COLUMN_METASCORE=13;
+    public static final int COLUMN_VOTES=14;
+    public static final int COLUMN_POSTER_URL=15;
+    public static final int COLUMN_POSTER=16;
+    public static final int COLUMN_WATCHED=17;
 
     public FilmFragment() {
 
@@ -103,6 +157,8 @@ public class FilmFragment  extends Fragment {
         alert.show();
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -142,8 +198,18 @@ public class FilmFragment  extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FILM_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
+        updateAdapter();
+    }
+
+    void updateAdapter(){
         DBUtility dbUtil= new DBUtility();
         orderBy=getOrderBy();
         movies=dbUtil.ReadDb(appView.getContext(), orderBy);
@@ -155,14 +221,57 @@ public class FilmFragment  extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        updateAdapter();
+    }
 
-        //mFilmAdapter.notifyDataSetChanged();
-         DBUtility dbUtil= new DBUtility();
-        orderBy=getOrderBy();
-        movies=dbUtil.ReadDb(appView.getContext(), orderBy);
-        //  Log.i("","movies.size() fragment: "+movies.size());
-        mFilmAdapter = new FilmAdapter(appView.getContext(),R.layout.list_item_film,movies,orderBy);
-        listView.setAdapter(mFilmAdapter);
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        if (mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // This is called when a new Loader needs to be created.  This
+        // fragment only uses one loader, so we don't care about checking the id.
+
+        // To only show current and future dates, get the String representation for today,
+        // and filter the query to return weather only for dates after or including today.
+        // Only return data after today.
+
+
+        // Sort order:  Ascending, by date.
+
+
+
+        Uri filmTitleUri = FilmContract.FilmEntry.buildFilmTitle();
+
+        // Now create and return a CursorLoader that will take care of
+        // creating a Cursor for the data being displayed.
+        return new CursorLoader(
+                getActivity(),
+                filmTitleUri,
+                FILM_COLUMNS,
+                null,
+                null,
+                orderBy+" DESC"
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        /*mFilmAdapter.swapCursor(data);
+        if (mPosition != ListView.INVALID_POSITION) {
+            listView.smoothScrollToPosition(mPosition);
+        }*/
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+      //  mFilmAdapter.swapCursor(null);
     }
 
     public class SearchFilmTask extends AsyncTask<String, Void, String[]> {
@@ -251,7 +360,6 @@ public class FilmFragment  extends Fragment {
                     }
                 }
             }
-
             String[] result = new String[]{filmJsonStr};
             return result;
         }
@@ -262,10 +370,7 @@ public class FilmFragment  extends Fragment {
 
             int inserted = dbUtil.insertFilm(result[0], mActivity.getApplicationContext());
             if (inserted == 1) {
-                orderBy=getOrderBy();
-                movies=dbUtil.ReadDb(appView.getContext(), orderBy);
-                mFilmAdapter = new FilmAdapter(appView.getContext(),R.layout.list_item_film,movies,orderBy);
-                listView.setAdapter(mFilmAdapter);
+                updateAdapter();
                 Toast.makeText(mActivity.getApplicationContext(), "Movie added to the list", Toast.LENGTH_SHORT).show();
             }
             else if (inserted == 0)

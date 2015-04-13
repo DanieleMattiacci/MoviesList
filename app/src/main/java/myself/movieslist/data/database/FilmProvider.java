@@ -26,7 +26,7 @@ public class FilmProvider  extends ContentProvider {
 
     //location.location_setting = ? AND date = ?
     private static final String sDaySelection =
-            FilmContract.FilmEntry.TABLE_NAME +"." + FilmContract.FilmEntry.TITLE_FILM + " = ? ";
+            FilmContract.FilmEntry.TABLE_NAME +"." + FilmContract.FilmEntry.COLUMN_TITLE_FILM + " = ? ";
 
 
 

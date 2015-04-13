@@ -20,27 +20,27 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String SQL_CREATE_FILM_TABLE = "CREATE TABLE " + FilmEntry.TABLE_NAME + " (" +
 
-                FilmEntry.FILM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                FilmEntry.TITLE_FILM + " TEXT NOT NULL, " +
-                FilmEntry.IMDB_ID + " TEXT NOT NULL, " +
-                FilmEntry.YEAR + " TEXT NOT NULL, " +
-                FilmEntry.RELEASED_DATE + " TEXT NOT NULL, " +
-                FilmEntry.RATED + " TEXT NOT NULL, " +
-                FilmEntry.RUNTIME + " TEXT NOT NULL, " +
-                FilmEntry.GENRE  + " TEXT NOT NULL, " +
-                FilmEntry.DIRECTOR + " TEXT NOT NULL, " +
-                FilmEntry.WRITER + " TEXT NOT NULL, " +
-                FilmEntry.ACTOR + " TEXT NOT NULL, " +
-                FilmEntry.PLOT + " TEXT NOT NULL, " +
-                FilmEntry.AWARDS + " TEXT NOT NULL, " +
-                FilmEntry.RATING + " TEXT NOT NULL, " +
-                FilmEntry.METASCORE + " TEXT NOT NULL, " +
-                FilmEntry.VOTES + " TEXT NOT NULL, " +
-                FilmEntry.POSTER_URL + " TEXT NOT NULL, " +
-                FilmEntry.POSTER + " TEXT NOT NULL, " +
-                FilmEntry. WATCHED + " TEXT NOT NULL, " +
-                FilmEntry.LANGUAGE + " TEXT NOT NULL, " +
-                FilmEntry.COUNTRY + " TEXT NOT NULL);";
+                FilmEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                FilmEntry.COLUMN_TITLE_FILM + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_IMDB_ID + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_YEAR + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_RELEASED_DATE + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_RATED + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_RUNTIME + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_GENRE  + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_DIRECTOR + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_WRITER + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_ACTOR + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_PLOT + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_AWARDS + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_RATING + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_METASCORE + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_VOTES + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_POSTER_URL + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_POSTER + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_WATCHED + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_LANGUAGE + " TEXT NOT NULL, " +
+                FilmEntry.COLUMN_COUNTRY + " TEXT NOT NULL);";
         sqLiteDatabase.execSQL(SQL_CREATE_FILM_TABLE);
     }
 

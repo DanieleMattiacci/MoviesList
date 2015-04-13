@@ -83,7 +83,7 @@ static String title_film;
         }else if (id == R.id.action_remove_film) {
             String[] params = {title_film};
             if(getApplicationContext().getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI,
-                    FilmContract.FilmEntry.TITLE_FILM+"=?",params)>0)
+                    FilmContract.FilmEntry.COLUMN_TITLE_FILM+"=?",params)>0)
                 thisActivity.finish();
             return true;
         }else if (id == R.id.action_watched_film) {

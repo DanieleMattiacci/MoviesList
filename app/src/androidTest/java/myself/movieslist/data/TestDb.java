@@ -39,26 +39,26 @@ public class TestDb extends AndroidTestCase {
         assertTrue(filmRowId != -1);
 
         String[] columns = {
-                FilmEntry.TITLE_FILM,
-                FilmEntry.YEAR,
-                FilmEntry.RATED,
-                FilmEntry.COUNTRY,
-                FilmEntry.IMDB_ID,
-                FilmEntry.RELEASED_DATE,
-                FilmEntry.RUNTIME,
-                FilmEntry.GENRE,
-                FilmEntry.DIRECTOR,
-                FilmEntry.WRITER,
-                FilmEntry.ACTOR,
-                FilmEntry.PLOT,
-                FilmEntry.AWARDS,
-                FilmEntry.RATING,
-                FilmEntry.METASCORE,
-                FilmEntry.VOTES,
-                FilmEntry.POSTER_URL,
-                FilmEntry.POSTER,
-                FilmEntry.WATCHED,
-                FilmEntry.LANGUAGE,
+                FilmEntry.COLUMN_TITLE_FILM,
+                FilmEntry.COLUMN_YEAR,
+                FilmEntry.COLUMN_RATED,
+                FilmEntry.COLUMN_COUNTRY,
+                FilmEntry.COLUMN_IMDB_ID,
+                FilmEntry.COLUMN_RELEASED_DATE,
+                FilmEntry.COLUMN_RUNTIME,
+                FilmEntry.COLUMN_GENRE,
+                FilmEntry.COLUMN_DIRECTOR,
+                FilmEntry.COLUMN_WRITER,
+                FilmEntry.COLUMN_ACTOR,
+                FilmEntry.COLUMN_PLOT,
+                FilmEntry.COLUMN_AWARDS,
+                FilmEntry.COLUMN_RATING,
+                FilmEntry.COLUMN_METASCORE,
+                FilmEntry.COLUMN_VOTES,
+                FilmEntry.COLUMN_POSTER_URL,
+                FilmEntry.COLUMN_POSTER,
+                FilmEntry.COLUMN_WATCHED,
+                FilmEntry.COLUMN_LANGUAGE,
         };
 
         Cursor cursor = db.query(
@@ -103,27 +103,27 @@ public class TestDb extends AndroidTestCase {
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(FilmEntry.TITLE_FILM, title);
-        values.put(FilmEntry.YEAR, year);
-        values.put(FilmEntry.RATED, rated);
-        values.put(FilmEntry.COUNTRY, country);
-        values.put(FilmEntry.IMDB_ID, title);
-        values.put(FilmEntry.RELEASED_DATE, year);
-        values.put(FilmEntry.RATED, rated);
-        values.put(FilmEntry.RUNTIME, country);
-        values.put(FilmEntry.GENRE, title);
-        values.put(FilmEntry.DIRECTOR, year);
-        values.put(FilmEntry.WRITER, rated);
-        values.put(FilmEntry.ACTOR, country);
-        values.put(FilmEntry.PLOT, title);
-        values.put(FilmEntry.AWARDS, year);
-        values.put(FilmEntry.RATING, rated);
-        values.put(FilmEntry.METASCORE, country);
-        values.put(FilmEntry.VOTES, country);
-        values.put(FilmEntry.POSTER_URL, title);
-        values.put(FilmEntry.POSTER, year);
-        values.put(FilmEntry.WATCHED, "false");
-        values.put(FilmEntry.LANGUAGE, country);
+        values.put(FilmEntry.COLUMN_TITLE_FILM, title);
+        values.put(FilmEntry.COLUMN_YEAR, year);
+        values.put(FilmEntry.COLUMN_RATED, rated);
+        values.put(FilmEntry.COLUMN_COUNTRY, country);
+        values.put(FilmEntry.COLUMN_IMDB_ID, title);
+        values.put(FilmEntry.COLUMN_RELEASED_DATE, year);
+        values.put(FilmEntry.COLUMN_RATED, rated);
+        values.put(FilmEntry.COLUMN_RUNTIME, country);
+        values.put(FilmEntry.COLUMN_GENRE, title);
+        values.put(FilmEntry.COLUMN_DIRECTOR, year);
+        values.put(FilmEntry.COLUMN_WRITER, rated);
+        values.put(FilmEntry.COLUMN_ACTOR, country);
+        values.put(FilmEntry.COLUMN_PLOT, title);
+        values.put(FilmEntry.COLUMN_AWARDS, year);
+        values.put(FilmEntry.COLUMN_RATING, rated);
+        values.put(FilmEntry.COLUMN_METASCORE, country);
+        values.put(FilmEntry.COLUMN_VOTES, country);
+        values.put(FilmEntry.COLUMN_POSTER_URL, title);
+        values.put(FilmEntry.COLUMN_POSTER, year);
+        values.put(FilmEntry.COLUMN_WATCHED, "false");
+        values.put(FilmEntry.COLUMN_LANGUAGE, country);
         return values;
     }
 

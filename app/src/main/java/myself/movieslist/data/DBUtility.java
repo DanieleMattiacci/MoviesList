@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -20,31 +21,32 @@ import myself.movieslist.data.pojo.ResponseFilm;
 
 public class DBUtility extends AndroidTestCase {
 /*
-* 0, not inserted
+* 0, not found
 * 1, inserted
 * 2, alreadyPresent
 * */
     public int insertFilm(String jsonFilm, Context context) {
         int resp=0;
+        String title=getTitleFromJson(jsonFilm);
+        if(title!=null) {
+            boolean present = alreadyPresent(title, context);
+            if (present == false) {
+                boolean insertedSuccessful = false;
 
-        boolean present=alreadyPresent(jsonFilm, context);
-        if(present==false) {
-            boolean insertedSuccessful = false;
+                ContentValues testValues = CreateFilmValues(jsonFilm);
 
-            ContentValues testValues = CreateFilmValues(jsonFilm);
+                Uri filmnUri = context.getContentResolver().insert(FilmContract.FilmEntry.CONTENT_URI, testValues);
+                long filmRowId = ContentUris.parseId(filmnUri);
 
-            Uri filmnUri = context.getContentResolver().insert(FilmContract.FilmEntry.CONTENT_URI, testValues);
-            long filmRowId = ContentUris.parseId(filmnUri);
+                if (filmRowId != -1) insertedSuccessful = true;
 
-            if (filmRowId != -1) insertedSuccessful = true;
-
-            if (insertedSuccessful == true) return resp = 1;
-            else return resp = 0;
-        }else return resp=2;
+                if (insertedSuccessful == true) return resp = 1;
+                else return resp = 0;
+            } else return resp = 2;
+        } else return 0;
     }
 
-    boolean alreadyPresent(String jsonFilm,Context context){
-        String title=getTitleFromJson(jsonFilm);
+    boolean alreadyPresent(String title,Context context){
             Cursor cursor = selectFilmByTitle(title,context);
             if(cursor.getCount() <= 0)return false;
         return true;
@@ -60,29 +62,29 @@ public class DBUtility extends AndroidTestCase {
         String[] params = {title};
 
         String[] columns = {
-                FilmEntry.TITLE_FILM,
-                FilmEntry.YEAR,
-                FilmEntry.RATED,
-                FilmEntry.RELEASED_DATE,
-                FilmEntry.RUNTIME,
-                FilmEntry.GENRE,
-                FilmEntry.DIRECTOR,
-                FilmEntry.WRITER,
-                FilmEntry.ACTOR,
-                FilmEntry.PLOT,
-                FilmEntry.AWARDS,
-                FilmEntry.RATING,
-                FilmEntry.METASCORE,
-                FilmEntry.VOTES,
-                FilmEntry.POSTER_URL,
-                FilmEntry.POSTER,
-                FilmEntry.WATCHED,
+                FilmEntry.COLUMN_TITLE_FILM,
+                FilmEntry.COLUMN_YEAR,
+                FilmEntry.COLUMN_RATED,
+                FilmEntry.COLUMN_RELEASED_DATE,
+                FilmEntry.COLUMN_RUNTIME,
+                FilmEntry.COLUMN_GENRE,
+                FilmEntry.COLUMN_DIRECTOR,
+                FilmEntry.COLUMN_WRITER,
+                FilmEntry.COLUMN_ACTOR,
+                FilmEntry.COLUMN_PLOT,
+                FilmEntry.COLUMN_AWARDS,
+                FilmEntry.COLUMN_RATING,
+                FilmEntry.COLUMN_METASCORE,
+                FilmEntry.COLUMN_VOTES,
+                FilmEntry.COLUMN_POSTER_URL,
+                FilmEntry.COLUMN_POSTER,
+                FilmEntry.COLUMN_WATCHED,
         };
 
         Cursor cursor = context.getContentResolver().query(
                 FilmEntry.CONTENT_URI,
                 columns, // leaving "columns" null just returns all the columns.
-                FilmContract.FilmEntry.TITLE_FILM+"=?", // cols for "where" clause
+                FilmContract.FilmEntry.COLUMN_TITLE_FILM+"=?", // cols for "where" clause
                 params, // values for "where" clause
                 null  // sort order
         );
@@ -91,9 +93,9 @@ public class DBUtility extends AndroidTestCase {
 
     public boolean updateWatchedFilm(String title,Context context) {
         ContentValues values = new ContentValues();
-        values.put(FilmEntry.WATCHED, "true");
+        values.put(FilmEntry.COLUMN_WATCHED, "true");
         return context.getContentResolver().update(
-                FilmEntry.CONTENT_URI, values, FilmEntry.TITLE_FILM + "= ?",
+                FilmEntry.CONTENT_URI, values, FilmEntry.COLUMN_TITLE_FILM + "= ?",
                 new String[] {title})>0;
     }
 
@@ -101,33 +103,33 @@ public class DBUtility extends AndroidTestCase {
         ResponseFilm entry= new ResponseFilm();
 
         if (cursor.moveToFirst()){
-            entry.setTitle(cursor.getString(cursor.getColumnIndex(FilmEntry.TITLE_FILM)));
-            entry.setRated(cursor.getString(cursor.getColumnIndex(FilmEntry.RATED)));
-            entry.setReleased(cursor.getString(cursor.getColumnIndex(FilmEntry.RELEASED_DATE)));
-            entry.setRuntime(cursor.getString(cursor.getColumnIndex(FilmEntry.RUNTIME)));
-            entry.setGenre(cursor.getString(cursor.getColumnIndex(FilmEntry.GENRE)));
-            entry.setDirector(cursor.getString(cursor.getColumnIndex(FilmEntry.DIRECTOR)));
-            entry.setWriter(cursor.getString(cursor.getColumnIndex(FilmEntry.WRITER)));
-            entry.setActors(cursor.getString(cursor.getColumnIndex(FilmEntry.ACTOR)));
-            entry.setPlot(cursor.getString(cursor.getColumnIndex(FilmEntry.PLOT)));
-            entry.setAwards(cursor.getString(cursor.getColumnIndex(FilmEntry.AWARDS)));
-            entry.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.RATING)));
-            entry.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.METASCORE)));
-            entry.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.VOTES)));
-            entry.setWatched(cursor.getString(cursor.getColumnIndex(FilmEntry.WATCHED)));
+            entry.setTitle(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_TITLE_FILM)));
+            entry.setRated(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RATED)));
+            entry.setReleased(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RELEASED_DATE)));
+            entry.setRuntime(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RUNTIME)));
+            entry.setGenre(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_GENRE)));
+            entry.setDirector(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_DIRECTOR)));
+            entry.setWriter(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_WRITER)));
+            entry.setActors(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_ACTOR)));
+            entry.setPlot(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_PLOT)));
+            entry.setAwards(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_AWARDS)));
+            entry.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RATING)));
+            entry.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_METASCORE)));
+            entry.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_VOTES)));
+            entry.setWatched(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_WATCHED)));
         }
         return entry;
     }
 
     String getTitleFromJson(String jsonFilm){
         ContentValues values=CreateFilmValues(jsonFilm);
-        String title= (String) values.get(FilmEntry.TITLE_FILM);
+        String title= (String) values.get(FilmEntry.COLUMN_TITLE_FILM);
         return title;
     }
 
     static ContentValues CreateFilmValues(String jsonFilm){
        Gson gson = new Gson();
-       ResponseFilm resp = gson.fromJson(jsonFilm,ResponseFilm.class);
+       ResponseFilm resp = gson.fromJson(jsonFilm, ResponseFilm.class);
        resp.setWatched("false");
        ContentValues values=ObjectToContentValues(resp);
        return values;
@@ -135,26 +137,26 @@ public class DBUtility extends AndroidTestCase {
 
     static ContentValues ObjectToContentValues(ResponseFilm resp) {
         ContentValues values = new ContentValues();
-        values.put(FilmEntry.TITLE_FILM, resp.getTitle());
-        values.put(FilmEntry.YEAR, resp.getYear());
-        values.put(FilmEntry.RATED, resp.getRated());
-        values.put(FilmEntry.COUNTRY, resp.getCountry());
-        values.put(FilmEntry.IMDB_ID, resp.getImdbID());
-        values.put(FilmEntry.RELEASED_DATE, resp.getReleased());
-        values.put(FilmEntry.RUNTIME, resp.getRuntime());
-        values.put(FilmEntry.GENRE, resp.getGenre());
-        values.put(FilmEntry.DIRECTOR, resp.getDirector());
-        values.put(FilmEntry.WRITER, resp.getWriter());
-        values.put(FilmEntry.ACTOR, resp.getActors());
-        values.put(FilmEntry.PLOT, resp.getPlot());
-        values.put(FilmEntry.AWARDS, resp.getAwards());
-        values.put(FilmEntry.RATING, resp.getImdbRating());
-        values.put(FilmEntry.METASCORE, resp.getMetascore());
-        values.put(FilmEntry.VOTES, resp.getImdbVotes());
-        values.put(FilmEntry.POSTER_URL, resp.getPoster());
-        values.put(FilmEntry.POSTER, "");
-        values.put(FilmEntry.WATCHED, resp.getWatched());
-        values.put(FilmEntry.LANGUAGE, resp.getLanguage());
+        values.put(FilmEntry.COLUMN_TITLE_FILM, resp.getTitle());
+        values.put(FilmEntry.COLUMN_YEAR, resp.getYear());
+        values.put(FilmEntry.COLUMN_RATED, resp.getRated());
+        values.put(FilmEntry.COLUMN_COUNTRY, resp.getCountry());
+        values.put(FilmEntry.COLUMN_IMDB_ID, resp.getImdbID());
+        values.put(FilmEntry.COLUMN_RELEASED_DATE, resp.getReleased());
+        values.put(FilmEntry.COLUMN_RUNTIME, resp.getRuntime());
+        values.put(FilmEntry.COLUMN_GENRE, resp.getGenre());
+        values.put(FilmEntry.COLUMN_DIRECTOR, resp.getDirector());
+        values.put(FilmEntry.COLUMN_WRITER, resp.getWriter());
+        values.put(FilmEntry.COLUMN_ACTOR, resp.getActors());
+        values.put(FilmEntry.COLUMN_PLOT, resp.getPlot());
+        values.put(FilmEntry.COLUMN_AWARDS, resp.getAwards());
+        values.put(FilmEntry.COLUMN_RATING, resp.getImdbRating());
+        values.put(FilmEntry.COLUMN_METASCORE, resp.getMetascore());
+        values.put(FilmEntry.COLUMN_VOTES, resp.getImdbVotes());
+        values.put(FilmEntry.COLUMN_POSTER_URL, resp.getPoster());
+        values.put(FilmEntry.COLUMN_POSTER, "");
+        values.put(FilmEntry.COLUMN_WATCHED, resp.getWatched());
+        values.put(FilmEntry.COLUMN_LANGUAGE, resp.getLanguage());
         return values;
     }
 
@@ -166,14 +168,14 @@ public class DBUtility extends AndroidTestCase {
         if (cursor.moveToFirst())
             do {
                 ResponseFilm entryFilm = new ResponseFilm();
-                entryFilm.setTitle(cursor.getString(cursor.getColumnIndex(FilmEntry.TITLE_FILM)));
-                entryFilm.setWatched(cursor.getString(cursor.getColumnIndex(FilmEntry.WATCHED)));
+                entryFilm.setTitle(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_TITLE_FILM)));
+                entryFilm.setWatched(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_WATCHED)));
                 if (orderBy.equals("rating"))
-                    entryFilm.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.RATING)));
+                    entryFilm.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RATING)));
                 else if (orderBy.equals("metascore"))
-                    entryFilm.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.METASCORE)));
+                    entryFilm.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_METASCORE)));
                 else if (orderBy.equals("votes"))
-                    entryFilm.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.VOTES)));
+                    entryFilm.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_VOTES)));
                 movies.add(entryFilm);
             }while(cursor.moveToNext());
         return movies;
@@ -181,11 +183,11 @@ public class DBUtility extends AndroidTestCase {
 
     Cursor getCursorOrdered(Context context,String orderBy/*,SQLiteDatabase db*/){
         String[] columns = {
-                FilmEntry.TITLE_FILM,
-                FilmEntry.RATING,
-                FilmEntry.METASCORE,
-                FilmEntry.VOTES,
-                FilmEntry.WATCHED,
+                FilmEntry.COLUMN_TITLE_FILM,
+                FilmEntry.COLUMN_RATING,
+                FilmEntry.COLUMN_METASCORE,
+                FilmEntry.COLUMN_VOTES,
+                FilmEntry.COLUMN_WATCHED,
         };
 
         Cursor cursor = context.getContentResolver().query(
