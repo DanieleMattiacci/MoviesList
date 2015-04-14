@@ -91,7 +91,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
         Bundle bundle = this.getArguments();
         if (bundle != null)
-            filmTitle = bundle.getString("title", "title");
+            filmTitle = bundle.getString(DetailActivity.FILM_TITLE_KEY, "title");
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         title=((TextView) rootView.findViewById(R.id.film_title));
@@ -190,7 +190,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             if (mShareActionProvider != null )
                 mShareActionProvider.setShareIntent(createShareFilmIntent());
-            mFilmDetail = " See this episode"+data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM));
+            mFilmDetail = " See this film"+data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM));
         }
     }
 

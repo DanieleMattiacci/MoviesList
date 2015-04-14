@@ -34,6 +34,7 @@ import myself.movieslist.data.database.FilmContract;
 public class DetailActivity extends ActionBarActivity {
 Activity thisActivity;
 static String title_film;
+    public static final String FILM_TITLE_KEY = "title";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +51,9 @@ static String title_film;
         if (savedInstanceState == null) {
             DetailFragment detailFragment=new DetailFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("title", title_film);
+            bundle.putString(FILM_TITLE_KEY, title_film);
             detailFragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().add(R.id.container, detailFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.film_detail_container, detailFragment).commit();
         }
     }
 

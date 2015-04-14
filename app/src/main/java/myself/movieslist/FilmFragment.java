@@ -91,6 +91,20 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     public static final int COLUMN_POSTER=16;
     public static final int COLUMN_WATCHED=17;
 
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(String title_film);
+    }
+
+
     public FilmFragment() {
 
     }
@@ -163,12 +177,33 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+                Cursor cursor = mFilmAdapter.getCursor();
+                if (cursor != null && cursor.moveToPosition(position)) {
+                    ((Callback)getActivity())
+                            .onItemSelected(cursor.getString(COLUMN_TITLE_FILM));
+                }
+
+
+            /*    Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (cursor != null) {
+                    try {
+
+                        ((Callback) getActivity())
+                                .onItemSelected(FilmContract.FilmEntry.buildFilmWithTitle(
+                                        cursor.getString(cursor.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM)))));
+                    } catch (Exception e) {
+                        Log.e("LOG_TAG","Errore nel caricamento del cursore");
+                    }
+                }
+
+
                 Cursor cursor = mFilmAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
                     Intent intent = new Intent(getActivity(), DetailActivity.class)
                             .putExtra(Intent.EXTRA_TEXT, cursor.getString(cursor.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM)));
                     startActivity(intent);
-                }
+                }*/
                 mPosition = position;
             }
         });

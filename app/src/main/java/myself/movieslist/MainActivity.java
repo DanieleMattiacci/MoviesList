@@ -1,9 +1,11 @@
 package myself.movieslist;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -13,12 +15,12 @@ import android.view.MenuItem;
 
 import myself.movieslist.data.DBUtility;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements FilmFragment.Callback{
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     Activity thisActivity;
-    private boolean mTwoPane;
+    boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,11 +29,24 @@ public class MainActivity extends ActionBarActivity {
         thisActivity = this;
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff9800")));
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new FilmFragment())
-                    .commit();
+
+        if (findViewById(R.id.film_detail_container) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.film_detail_container, new DetailFragment())
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
         }
+       // FilmFragment filmFragment =  ((FilmFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_film));
+
+      /*  if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_film, new FilmFragment())
+                    .commit();
+        }*/
     }
 
     String getOrderBy(){
@@ -57,8 +72,30 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        FilmFragment ff = (FilmFragment)getSupportFragmentManager().findFragmentById(R.id.container);
+        FilmFragment ff = (FilmFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_film);
         ff.ReloadLoader();
+    }
+
+    @Override
+    public void onItemSelected(String film_title) {
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putString(DetailActivity.FILM_TITLE_KEY, film_title);
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.film_detail_container, fragment)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .putExtra(DetailActivity.FILM_TITLE_KEY, film_title);
+            startActivity(intent);
+        }
     }
 }
 
