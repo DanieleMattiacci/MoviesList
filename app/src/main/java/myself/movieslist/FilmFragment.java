@@ -1,12 +1,8 @@
 package myself.movieslist;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -14,8 +10,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,16 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 import myself.movieslist.data.DBUtility;
@@ -73,7 +59,7 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     };
 
     public static final int _ID=0;
-    public static final int COLUMN_TITLE_FILM=1;
+    public static final int COLUMN_TITLE=1;
     public static final int COLUMN_YEAR=2;
     public static final int COLUMN_RATED=3;
     public static final int COLUMN_RELEASED_DATE=4;
@@ -124,17 +110,10 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_search_film) {
-            RunSearchDialog();
-            return true;
-        }else  if (id == R.id.action_settings) {
-            startActivity(new Intent(mActivity, SettingsActivity.class));
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
-    private void RunSearchDialog() {
+  /*  private void RunSearchDialog() {
         AlertDialog.Builder alert = new AlertDialog.Builder(mActivity);
         alert.setMessage(R.string.title_search_dialog);
         final EditText input = new EditText(mActivity);
@@ -156,7 +135,7 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
             }
         });
         alert.show();
-    }
+    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -177,33 +156,11 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-
                 Cursor cursor = mFilmAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
                     ((Callback)getActivity())
-                            .onItemSelected(cursor.getString(COLUMN_TITLE_FILM));
+                            .onItemSelected(cursor.getString(COLUMN_TITLE));
                 }
-
-
-            /*    Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-                if (cursor != null) {
-                    try {
-
-                        ((Callback) getActivity())
-                                .onItemSelected(FilmContract.FilmEntry.buildFilmWithTitle(
-                                        cursor.getString(cursor.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM)))));
-                    } catch (Exception e) {
-                        Log.e("LOG_TAG","Errore nel caricamento del cursore");
-                    }
-                }
-
-
-                Cursor cursor = mFilmAdapter.getCursor();
-                if (cursor != null && cursor.moveToPosition(position)) {
-                    Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .putExtra(Intent.EXTRA_TEXT, cursor.getString(cursor.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM)));
-                    startActivity(intent);
-                }*/
                 mPosition = position;
             }
         });
@@ -275,98 +232,5 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
        getLoaderManager().restartLoader(FILM_LOADER, null, this);
     }
 
-    public class SearchFilmTask extends AsyncTask<String, Void, String[]> {
 
-        private final String LOG_TAG = SearchFilmTask.class.getSimpleName();
-
-        @Override
-        protected String[] doInBackground(String... params) {
-
-            if (params.length == 0) {
-                return null;
-            }
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            String filmJsonStr = null;
-
-            String year = "";
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity.getApplicationContext());
-
-            String plot = prefs.getString(getString(R.string.pref_plot_key),getString(R.string.pref_plot_short));
-            String response = "json";
-
-            try {
-                final String FILM_BASE_URL = "http://www.omdbapi.com/?";
-                final String TITLE_PARAM = "t";
-                final String YEAR_PARAM = "y";
-                final String PLOT_PARAM = "plot";
-                final String RESPONSE_PARAM = "r";
-
-                Uri builtUri = Uri.parse(FILM_BASE_URL).buildUpon()
-                        .appendQueryParameter(TITLE_PARAM, params[0])
-                        .appendQueryParameter(YEAR_PARAM, year)
-                        .appendQueryParameter(PLOT_PARAM, plot)
-                        .appendQueryParameter(RESPONSE_PARAM, response)
-                        .build();
-
-                URL url = new URL(builtUri.toString());
-
-                Log.i(LOG_TAG, url.toString());
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    return null;
-                }
-                filmJsonStr = buffer.toString();
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
-                return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
-                    }
-                }
-            }
-            String[] result = new String[]{filmJsonStr};
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String[] result) {
-            DBUtility dbUtil = new DBUtility();
-
-            int inserted = dbUtil.insertFilm(result[0], mActivity.getApplicationContext());
-            if (inserted == 1) {
-                ReloadLoader();
-                Toast.makeText(mActivity.getApplicationContext(), "Movie added to the list", Toast.LENGTH_SHORT).show();
-            }
-            else if (inserted == 0)
-                Toast.makeText(mActivity.getApplicationContext(), "Movie not found", Toast.LENGTH_SHORT).show();
-            else if (inserted == 2)
-                Toast.makeText(mActivity.getApplicationContext(), "Movie already present in the list", Toast.LENGTH_SHORT).show();
-        }
-    }
 }

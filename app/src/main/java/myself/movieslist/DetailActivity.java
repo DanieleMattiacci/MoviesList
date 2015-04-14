@@ -4,36 +4,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import myself.movieslist.data.DBUtility;
-import myself.movieslist.data.database.FilmContract;
 
 
 public class DetailActivity extends ActionBarActivity {
 Activity thisActivity;
-static String title_film;
+ String title_film;
     public static final String FILM_TITLE_KEY = "title";
 
     @Override
@@ -43,17 +27,16 @@ static String title_film;
         thisActivity = this;
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff9800")));
 
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-            title_film = intent.getStringExtra(Intent.EXTRA_TEXT);
-        }
-
         if (savedInstanceState == null) {
-            DetailFragment detailFragment=new DetailFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString(FILM_TITLE_KEY, title_film);
-            detailFragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().add(R.id.film_detail_container, detailFragment).commit();
+
+            if (savedInstanceState == null) {
+                title_film = getIntent().getStringExtra(FILM_TITLE_KEY);
+                DetailFragment detailFragment=new DetailFragment();
+                Bundle arguments = new Bundle();
+                arguments.putString(FILM_TITLE_KEY, title_film);
+                detailFragment.setArguments(arguments);
+                getSupportFragmentManager().beginTransaction().add(R.id.film_detail_container, detailFragment).commit();
+            }
         }
     }
 
@@ -72,20 +55,6 @@ static String title_film;
         }else if (id == R.id.action_search_film) {
             RunSearchDialog();
             return true;
-        }else if (id == R.id.action_watch_trailer) {
-            Intent i = new Intent(this, YouTubeApiPlayer.class);
-            i.putExtra("title", title_film);
-            startActivity(i);
-            return true;
-        }else if (id == R.id.action_remove_film) {
-            String[] params = {title_film};
-            if(getApplicationContext().getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI,
-                    FilmContract.FilmEntry.COLUMN_TITLE_FILM+"=?",params)>0)
-                thisActivity.finish();
-            return true;
-        }else if (id == R.id.action_watched_film) {
-            MarkWatched();
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -103,7 +72,8 @@ static String title_film;
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
                 } else {
-                    new SearchFilmTask().execute(input.getText().toString());
+                    SearchFilmTask search=new SearchFilmTask(thisActivity);
+                    search.execute(input.getText().toString());
                 }
             }
         });
@@ -115,13 +85,13 @@ static String title_film;
         alert.show();
     }
 
-    void MarkWatched(){
+    /*void MarkWatched(){
         DBUtility dbUtil= new DBUtility();
         boolean watched=dbUtil.updateWatchedFilm(title_film,getApplicationContext());
         if(watched==true)DetailFragment.watched.setVisibility(View.VISIBLE);
-    }
+    }*/
 
-    public class SearchFilmTask extends AsyncTask<String, Void, String[]> {
+   /* public class SearchFilmTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = SearchFilmTask.class.getSimpleName();
 
@@ -145,7 +115,7 @@ static String title_film;
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
            /* String location = prefs.getString(getString(R.string.pref_location_key),
                     getString(R.string.pref_location_default));*/
-            String plot = prefs.getString(getString(R.string.pref_plot_key),
+         /*   String plot = prefs.getString(getString(R.string.pref_plot_key),
                     getString(R.string.pref_plot_short));
             String response = "json";
 
@@ -226,5 +196,5 @@ static String title_film;
             else if (inserted == 2)
                 Toast.makeText(getApplicationContext(), "Movie already present in the list", Toast.LENGTH_SHORT).show();
         }
-    }
+    }*/
 }

@@ -48,6 +48,11 @@ public class FilmContract {
            return CONTENT_URI.buildUpon().build();
        }
 
+       public static Uri buildFilmIDLong(long id){
+           return CONTENT_URI.buildUpon()
+                   .appendPath(Long.toString(id)).build();
+       }
+
        public static String getFilmTitleFromUri(Uri uri) {
            return uri.getPathSegments().get(1);
        }

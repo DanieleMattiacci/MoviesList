@@ -1,18 +1,15 @@
 package myself.movieslist;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import myself.movieslist.data.DBUtility;
 import myself.movieslist.data.database.FilmContract;
 
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -141,6 +140,34 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mShareActionProvider.setShareIntent(createShareFilmIntent());
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_watch_trailer) {
+            Intent i = new Intent(getActivity().getApplicationContext(), YouTubeApiPlayer.class);
+            i.putExtra("title", filmTitle);
+            startActivity(i);
+            return true;
+        }else if (id == R.id.action_remove_film) {
+            String[] params = {filmTitle};
+            if(getActivity().getApplicationContext().getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI,
+                    FilmContract.FilmEntry.COLUMN_TITLE_FILM+"=?",params)>0)
+
+               // else thisActivity.finish();
+            return true;
+        }else if (id == R.id.action_watched_film) {
+            MarkWatched();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    void MarkWatched(){
+        DBUtility dbUtil= new DBUtility();
+        boolean watched=dbUtil.updateWatchedFilm(filmTitle,getActivity().getApplicationContext());
+        if(watched==true)DetailFragment.watched.setVisibility(View.VISIBLE);
+    }
+
     private Intent createShareFilmIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -190,7 +217,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             if (mShareActionProvider != null )
                 mShareActionProvider.setShareIntent(createShareFilmIntent());
-            mFilmDetail = " See this film"+data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM));
+            mFilmDetail = " See this film: "+filmTitle;
         }
     }
 

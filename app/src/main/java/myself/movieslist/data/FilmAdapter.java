@@ -46,7 +46,7 @@ public class FilmAdapter extends CursorAdapter {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        String filmTitle = cursor.getString(FilmFragment.COLUMN_TITLE_FILM);
+        String filmTitle = cursor.getString(FilmFragment.COLUMN_TITLE);
         viewHolder.title.setText(filmTitle);
 
         String watched=cursor.getString(FilmFragment.COLUMN_WATCHED);
