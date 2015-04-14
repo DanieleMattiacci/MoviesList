@@ -17,7 +17,6 @@ public class FilmContract {
 
         public static final String TABLE_NAME = "film";
 
-        //public static final String COLUMN_FILM_ID = "film_id";
         public static final String COLUMN_TITLE_FILM = "title_film";
         public static final String COLUMN_IMDB_ID = "imdb_id";
         public static final String COLUMN_YEAR = "year";
@@ -42,9 +41,9 @@ public class FilmContract {
          public static Uri buildFilmUri(long id) {
              return ContentUris.withAppendedId(CONTENT_URI, id);
          }
-       /*public static Uri buildFilmTitle(String titleFilm) {
+       public static Uri buildFilmWithTitle(String titleFilm) {
            return CONTENT_URI.buildUpon().appendPath(titleFilm).build();
-       }*/
+       }
        public static Uri buildFilmTitle() {
            return CONTENT_URI.buildUpon().build();
        }

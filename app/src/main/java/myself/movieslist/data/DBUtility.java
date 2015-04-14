@@ -52,12 +52,6 @@ public class DBUtility extends AndroidTestCase {
         return true;
     }
 
-    public ResponseFilm getFilm(String title,Context context){
-        Cursor cursor=selectFilmByTitle(title,context);
-        ResponseFilm entry=CursorToResponseFilm(cursor);
-        return entry;
-    }
-
     public Cursor selectFilmByTitle(String title,Context context){
         String[] params = {title};
 
@@ -83,10 +77,10 @@ public class DBUtility extends AndroidTestCase {
 
         Cursor cursor = context.getContentResolver().query(
                 FilmEntry.CONTENT_URI,
-                columns, // leaving "columns" null just returns all the columns.
-                FilmContract.FilmEntry.COLUMN_TITLE_FILM+"=?", // cols for "where" clause
-                params, // values for "where" clause
-                null  // sort order
+                columns,
+                FilmContract.FilmEntry.COLUMN_TITLE_FILM+"=?",
+                params,
+                null
         );
         return cursor;
     }
@@ -97,28 +91,6 @@ public class DBUtility extends AndroidTestCase {
         return context.getContentResolver().update(
                 FilmEntry.CONTENT_URI, values, FilmEntry.COLUMN_TITLE_FILM + "= ?",
                 new String[] {title})>0;
-    }
-
-    ResponseFilm CursorToResponseFilm(Cursor cursor){
-        ResponseFilm entry= new ResponseFilm();
-
-        if (cursor.moveToFirst()){
-            entry.setTitle(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_TITLE_FILM)));
-            entry.setRated(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RATED)));
-            entry.setReleased(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RELEASED_DATE)));
-            entry.setRuntime(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RUNTIME)));
-            entry.setGenre(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_GENRE)));
-            entry.setDirector(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_DIRECTOR)));
-            entry.setWriter(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_WRITER)));
-            entry.setActors(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_ACTOR)));
-            entry.setPlot(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_PLOT)));
-            entry.setAwards(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_AWARDS)));
-            entry.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RATING)));
-            entry.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_METASCORE)));
-            entry.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_VOTES)));
-            entry.setWatched(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_WATCHED)));
-        }
-        return entry;
     }
 
     String getTitleFromJson(String jsonFilm){
@@ -163,7 +135,7 @@ public class DBUtility extends AndroidTestCase {
     public ArrayList<ResponseFilm> ReadDb(Context context, String orderBy) {
         ArrayList<ResponseFilm> movies = new ArrayList<ResponseFilm>();
 
-        Cursor cursor = getCursorOrdered(context,orderBy/*,db*/);
+        Cursor cursor = getCursorOrdered(context,orderBy);
 
         if (cursor.moveToFirst())
             do {
@@ -174,28 +146,25 @@ public class DBUtility extends AndroidTestCase {
                     entryFilm.setImdbRating(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_RATING)));
                 else if (orderBy.equals("metascore"))
                     entryFilm.setMetascore(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_METASCORE)));
-                else if (orderBy.equals("votes"))
-                    entryFilm.setImdbVotes(cursor.getString(cursor.getColumnIndex(FilmEntry.COLUMN_VOTES)));
                 movies.add(entryFilm);
             }while(cursor.moveToNext());
         return movies;
     }
 
-    Cursor getCursorOrdered(Context context,String orderBy/*,SQLiteDatabase db*/){
+    Cursor getCursorOrdered(Context context,String orderBy){
         String[] columns = {
                 FilmEntry.COLUMN_TITLE_FILM,
                 FilmEntry.COLUMN_RATING,
                 FilmEntry.COLUMN_METASCORE,
-                FilmEntry.COLUMN_VOTES,
                 FilmEntry.COLUMN_WATCHED,
         };
 
         Cursor cursor = context.getContentResolver().query(
                 FilmEntry.CONTENT_URI,
-                columns, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                orderBy+" DESC"  // sort order
+                columns,
+                null,
+                null,
+                orderBy+" DESC"
         );
         return cursor;
     }

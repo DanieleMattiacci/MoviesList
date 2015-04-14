@@ -32,14 +32,12 @@ import myself.movieslist.data.database.FilmContract;
 
 
 public class DetailActivity extends ActionBarActivity {
-//static View rootView2;
 Activity thisActivity;
 static String title_film;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // getSupportActionBar().setIcon(R.drawable.ic_launcher);
         setContentView(R.layout.activity_detail);
         thisActivity = this;
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff9800")));
@@ -58,10 +56,8 @@ static String title_film;
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_detail, menu);
         return true;
     }

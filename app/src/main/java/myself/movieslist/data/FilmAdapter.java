@@ -15,8 +15,6 @@ import myself.movieslist.FilmFragment;
 import myself.movieslist.R;
 
 public class FilmAdapter extends CursorAdapter {
-    //String orderBy;
-
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.list_item_film, parent, false);
@@ -26,7 +24,6 @@ public class FilmAdapter extends CursorAdapter {
 
         return view;
     }
-
 
     public static class ViewHolder {
         public final ImageView checked;
@@ -42,7 +39,6 @@ public class FilmAdapter extends CursorAdapter {
 
     public FilmAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
-       // this.orderBy=orderBy;
     }
 
     @Override
@@ -59,16 +55,12 @@ public class FilmAdapter extends CursorAdapter {
             viewHolder.checked.setVisibility(View.GONE);
         else viewHolder.checked.setVisibility(View.VISIBLE);
 
-
         String orderBy=getOrderBy(context);
-
 
         if (orderBy.equals("rating"))
             viewHolder.orderValue.setText("Rating: " + cursor.getString(FilmFragment.COLUMN_RATING));
         else if (orderBy.equals("metascore"))
             viewHolder.orderValue.setText("Metascore: " +cursor.getString(FilmFragment.COLUMN_METASCORE));
-        else if (orderBy.equals("votes"))
-            viewHolder.orderValue.setText("imdbVotes: " + cursor.getString(FilmFragment.COLUMN_VOTES));
     }
 
     String getOrderBy(Context context){

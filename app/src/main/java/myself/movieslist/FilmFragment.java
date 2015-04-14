@@ -43,18 +43,14 @@ import myself.movieslist.data.pojo.ResponseFilm;
 public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     FragmentActivity mActivity;
     static FilmAdapter mFilmAdapter;
-    //static ArrayAdapter<ResponseFilm> mFilmAdapter;
     ArrayList<ResponseFilm> movies;
     String orderBy;
-   // View appView;
     ListView listView;
 
     private static final int FILM_LOADER = 0;
     private int mPosition = ListView.INVALID_POSITION;
     private static final String SELECTED_KEY = "selected_position";
 
-    // For the forecast view we're showing only a small subset of the stored data.
-    // Specify the columns we need.
     private static final String[] FILM_COLUMNS = {
             FilmContract.FilmEntry._ID,
             FilmContract.FilmEntry.COLUMN_TITLE_FILM,
@@ -76,9 +72,6 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
             FilmContract.FilmEntry.COLUMN_WATCHED,
     };
 
-
-    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
-    // must change.
     public static final int _ID=0;
     public static final int COLUMN_TITLE_FILM=1;
     public static final int COLUMN_YEAR=2;
@@ -106,7 +99,6 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity=getActivity();
-        // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
     }
 
@@ -157,7 +149,6 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_film, container, false);
         orderBy=getOrderBy();
-        //appView=rootView;
 
         DBUtility dbUtil= new DBUtility();
         movies=dbUtil.ReadDb(rootView.getContext(), orderBy);
@@ -167,7 +158,6 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
         listView = (ListView) rootView.findViewById(R.id.listview_film);
 
         listView.setAdapter(mFilmAdapter);
-
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -185,43 +175,8 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
 
         if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-            // The listview probably hasn't even been populated yet.  Actually perform the
-            // swapout in onLoadFinished.
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
-
-
-       // mFilmAdapter = new FilmAdapter(rootView.getContext(),R.layout.list_item_film,movies,orderBy);
-        // Get a reference to the ListView, and attach this adapter to it.
-
-
-
-    /*  listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Cursor cursor = mForecastAdapter.getCursor();
-                if (cursor != null && cursor.moveToPosition(position)) {
-                    String dateString = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
-                    String weatherDescription = cursor.getString(COL_WEATHER_DESC);
-
-                    boolean isMetric = Utility.isMetric(getActivity());
-                    String high = Utility.formatTemperature(
-                            cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
-                    String low = Utility.formatTemperature(
-                            cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
-
-                    String detailString = String.format("%s - %s - %s/%s",
-                            dateString, weatherDescription, high, low);
-
-                    Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .putExtra(Intent.EXTRA_TEXT, detailString);
-                    startActivity(intent);
-                }
-            }
-        });
-*/
-
         return rootView;
     }
 
@@ -237,13 +192,6 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
         getLoaderManager().initLoader(FILM_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
-
-    /*@Override
-    public void onStart() {
-        super.onStart();
-        orderBy=getOrderBy();
-       getLoaderManager().restartLoader(FILM_LOADER, null, this);
-    }*/
 
     @Override
     public void onResume() {
@@ -263,22 +211,8 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // This is called when a new Loader needs to be created.  This
-        // fragment only uses one loader, so we don't care about checking the id.
-
-        // To only show current and future dates, get the String representation for today,
-        // and filter the query to return weather only for dates after or including today.
-        // Only return data after today.
-
-
-        // Sort order:  Ascending, by date.
-
-
-
         Uri filmTitleUri = FilmContract.FilmEntry.buildFilmTitle();
 
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
         return new CursorLoader(
                 getActivity(),
                 filmTitleUri,
@@ -291,7 +225,6 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-       // Log.i("","Data: "+data);
         mFilmAdapter.swapCursor(data);
         if (mPosition != ListView.INVALID_POSITION) {
             listView.smoothScrollToPosition(mPosition);
@@ -314,17 +247,13 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
         @Override
         protected String[] doInBackground(String... params) {
 
-            // If there's no zip code, there's nothing to look up.  Verify size of params.
             if (params.length == 0) {
                 return null;
             }
 
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
-            // Will contain the raw JSON response as a string.
             String filmJsonStr = null;
 
             String year = "";
@@ -351,30 +280,23 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
                 Log.i(LOG_TAG, url.toString());
 
-                // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
 
-                // Read the input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
-                    // Nothing to do.
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
                     buffer.append(line + "\n");
                 }
 
                 if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
                     return null;
                 }
                 filmJsonStr = buffer.toString();
@@ -403,7 +325,6 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
             int inserted = dbUtil.insertFilm(result[0], mActivity.getApplicationContext());
             if (inserted == 1) {
-               // updateAdapter();
                 ReloadLoader();
                 Toast.makeText(mActivity.getApplicationContext(), "Movie added to the list", Toast.LENGTH_SHORT).show();
             }
