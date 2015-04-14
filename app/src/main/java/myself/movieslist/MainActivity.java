@@ -124,21 +124,23 @@ public class MainActivity extends ActionBarActivity {
         alert.show();
     }
 */
-    @Override
+    /*@Override
     protected void onStart() {
         Log.v(LOG_TAG, "in onStart");
         super.onStart();
+
         // The activity is about to become visible.
-    }
+    }*/
 
     @Override
     protected void onResume() {
         Log.v(LOG_TAG, "in onResume");
         super.onResume();
-        // The activity has become visible (it is now "resumed").
+        FilmFragment ff = (FilmFragment)getSupportFragmentManager().findFragmentById(R.id.container);
+        ff.ReloadLoader();
     }
 
-    @Override
+    /*@Override
     protected void onPause() {
         Log.v(LOG_TAG, "in onPause");
         super.onPause();
@@ -157,6 +159,6 @@ public class MainActivity extends ActionBarActivity {
         Log.v(LOG_TAG, "in onDestroy");
         super.onDestroy();
         // The activity is about to be destroyed.
-    }
+    }*/
 }
 

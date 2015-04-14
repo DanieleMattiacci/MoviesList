@@ -1,9 +1,6 @@
 package myself.movieslist;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,9 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -47,11 +42,11 @@ import myself.movieslist.data.pojo.ResponseFilm;
 
 public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     FragmentActivity mActivity;
-
-    static ArrayAdapter<ResponseFilm> mFilmAdapter;
+    static FilmAdapter mFilmAdapter;
+    //static ArrayAdapter<ResponseFilm> mFilmAdapter;
     ArrayList<ResponseFilm> movies;
     String orderBy;
-    View appView;
+   // View appView;
     ListView listView;
 
     private static final int FILM_LOADER = 0;
@@ -61,7 +56,7 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     // For the forecast view we're showing only a small subset of the stored data.
     // Specify the columns we need.
     private static final String[] FILM_COLUMNS = {
-            //FilmContract.FilmEntry._ID,
+            FilmContract.FilmEntry._ID,
             FilmContract.FilmEntry.COLUMN_TITLE_FILM,
             FilmContract.FilmEntry.COLUMN_YEAR,
             FilmContract.FilmEntry.COLUMN_RATED,
@@ -157,40 +152,80 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
         alert.show();
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_film, container, false);
         orderBy=getOrderBy();
-        appView=rootView;
+        //appView=rootView;
 
         DBUtility dbUtil= new DBUtility();
         movies=dbUtil.ReadDb(rootView.getContext(), orderBy);
 
-        mFilmAdapter = new FilmAdapter(rootView.getContext(),R.layout.list_item_film,movies,orderBy);
-        // Get a reference to the ListView, and attach this adapter to it.
+        mFilmAdapter = new FilmAdapter(getActivity(), null, 0);
+
         listView = (ListView) rootView.findViewById(R.id.listview_film);
 
         listView.setAdapter(mFilmAdapter);
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                ResponseFilm film = mFilmAdapter.getItem(position);
-               // String itemFilm = mFilmAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, film.getTitle());
-                startActivity(intent);
+                Cursor cursor = mFilmAdapter.getCursor();
+                if (cursor != null && cursor.moveToPosition(position)) {
+                    Intent intent = new Intent(getActivity(), DetailActivity.class)
+                            .putExtra(Intent.EXTRA_TEXT, cursor.getString(cursor.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM)));
+                    startActivity(intent);
+                }
+                mPosition = position;
             }
         });
+
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+
+
+       // mFilmAdapter = new FilmAdapter(rootView.getContext(),R.layout.list_item_film,movies,orderBy);
+        // Get a reference to the ListView, and attach this adapter to it.
+
+
+
+    /*  listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Cursor cursor = mForecastAdapter.getCursor();
+                if (cursor != null && cursor.moveToPosition(position)) {
+                    String dateString = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
+                    String weatherDescription = cursor.getString(COL_WEATHER_DESC);
+
+                    boolean isMetric = Utility.isMetric(getActivity());
+                    String high = Utility.formatTemperature(
+                            cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
+                    String low = Utility.formatTemperature(
+                            cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
+
+                    String detailString = String.format("%s - %s - %s/%s",
+                            dateString, weatherDescription, high, low);
+
+                    Intent intent = new Intent(getActivity(), DetailActivity.class)
+                            .putExtra(Intent.EXTRA_TEXT, detailString);
+                    startActivity(intent);
+                }
+            }
+        });
+*/
 
         return rootView;
     }
 
-    String getOrderBy(){
+   String getOrderBy(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
          String order = prefs.getString(getString(R.string.pref_order_by_key),
                 getString(R.string.pref_order_by_rating));
@@ -203,25 +238,18 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
         super.onActivityCreated(savedInstanceState);
     }
 
-    @Override
+    /*@Override
     public void onStart() {
         super.onStart();
-        updateAdapter();
-    }
-
-    void updateAdapter(){
-        DBUtility dbUtil= new DBUtility();
         orderBy=getOrderBy();
-        movies=dbUtil.ReadDb(appView.getContext(), orderBy);
-        //  Log.i("","movies.size() fragment: "+movies.size());
-        mFilmAdapter = new FilmAdapter(appView.getContext(),R.layout.list_item_film,movies,orderBy);
-        listView.setAdapter(mFilmAdapter);
-    }
+       getLoaderManager().restartLoader(FILM_LOADER, null, this);
+    }*/
 
     @Override
     public void onResume() {
         super.onResume();
-        updateAdapter();
+        orderBy=getOrderBy();
+        getLoaderManager().restartLoader(FILM_LOADER, null, this);
     }
 
     @Override
@@ -263,15 +291,20 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        /*mFilmAdapter.swapCursor(data);
+       // Log.i("","Data: "+data);
+        mFilmAdapter.swapCursor(data);
         if (mPosition != ListView.INVALID_POSITION) {
             listView.smoothScrollToPosition(mPosition);
-        }*/
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-      //  mFilmAdapter.swapCursor(null);
+        mFilmAdapter.swapCursor(null);
+    }
+
+   public void ReloadLoader(){
+       getLoaderManager().restartLoader(FILM_LOADER, null, this);
     }
 
     public class SearchFilmTask extends AsyncTask<String, Void, String[]> {
@@ -370,7 +403,8 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
 
             int inserted = dbUtil.insertFilm(result[0], mActivity.getApplicationContext());
             if (inserted == 1) {
-                updateAdapter();
+               // updateAdapter();
+                ReloadLoader();
                 Toast.makeText(mActivity.getApplicationContext(), "Movie added to the list", Toast.LENGTH_SHORT).show();
             }
             else if (inserted == 0)
