@@ -3,7 +3,6 @@ package myself.movieslist;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -123,7 +122,7 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 			} catch (JSONException e) {
 				ShowErrorMessage();
 			}
-            Log.i("","Videoid: "+videoId);
+            //Log.i("","Videoid: "+videoId);
 			return videoId;
 		}
 
@@ -134,7 +133,7 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 				JSONObject snippet=item.getJSONObject("snippet");
 
 				titolo = snippet.getString("title");
-                Log.i("","titolo: "+titolo);
+              //  Log.i("","titolo: "+titolo);
 			} catch (JSONException e) {
 				ShowErrorMessage();
 			}
@@ -149,7 +148,7 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 				JSONObject snippet=item.getJSONObject("snippet");
 
 				descrizione = snippet.getString("description");
-                Log.i("","descrizione: "+descrizione);
+              //  Log.i("","descrizione: "+descrizione);
 			} catch (JSONException e) {
 				ShowErrorMessage();
 			}
@@ -162,7 +161,7 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 			//titolo=ReplaceChar(titolo);
 			//autore=ReplaceChar(autore);
 			String Url="https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&type=video&key="+DEVELOPER_KEY+"&q="+title+"+official+trailer";
-			Log.i("inviato Url youtube",Url);
+			//Log.i("inviato Url youtube",Url);
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(Url);
 			String resp = null;

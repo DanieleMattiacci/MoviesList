@@ -1,5 +1,6 @@
 package myself.movieslist;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import myself.movieslist.data.DBUtility;
 import myself.movieslist.data.database.FilmContract;
@@ -30,7 +32,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private String filmTitle, mFilmDetail;
     private ShareActionProvider mShareActionProvider;
     private static final String FILM_SHARE_HASHTAG = " #MoviesListApp:";
-
+    private Activity thisActivity;
     private static final int DETAIL_LOADER = 0;
 
     private static final String[] FILM_COLUMNS = {
@@ -88,6 +90,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         Bundle bundle = this.getArguments();
         if (bundle != null)
             filmTitle = bundle.getString(DetailActivity.FILM_TITLE_KEY, "title");
@@ -119,6 +122,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         votes_label= ((TextView) rootView.findViewById(R.id.votes_label));
         votes_value= ((TextView) rootView.findViewById(R.id.votes));
         watched= ((ImageView) rootView.findViewById(R.id.watched));
+        if(MainActivity.mTwoPane==false)thisActivity=getActivity();
+        else {
+            if (MainActivity.firstStart == true) SetInvisibleDetailFragment();
+        }
         return rootView;
     }
 
@@ -144,22 +151,63 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_watch_trailer) {
-            Intent i = new Intent(getActivity().getApplicationContext(), YouTubeApiPlayer.class);
-            i.putExtra("title", filmTitle);
-            startActivity(i);
+            if(CheckVisibility()){
+               Toast.makeText(getActivity().getApplicationContext(), "Select a film",
+                        Toast.LENGTH_SHORT).show();
+            }else {
+                Intent i = new Intent(getActivity().getApplicationContext(), YouTubeApiPlayer.class);
+                i.putExtra("title", filmTitle);
+                startActivity(i);
+            }
             return true;
         }else if (id == R.id.action_remove_film) {
             String[] params = {filmTitle};
             if(getActivity().getApplicationContext().getContentResolver().delete(FilmContract.FilmEntry.CONTENT_URI,
                     FilmContract.FilmEntry.COLUMN_TITLE_FILM+"=?",params)>0)
-
-               // else thisActivity.finish();
+            if(MainActivity.mTwoPane==false)thisActivity.finish();
+            else  {
+                SetInvisibleDetailFragment();
+               // getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+            }
             return true;
         }else if (id == R.id.action_watched_film) {
             MarkWatched();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    boolean CheckVisibility(){
+        return title.getVisibility()!=View.VISIBLE;
+    }
+
+    void SetInvisibleDetailFragment(){
+        title.setVisibility(View.INVISIBLE);
+        release_label.setVisibility(View.INVISIBLE);
+        release_value.setVisibility(View.INVISIBLE);
+        rated_label.setVisibility(View.INVISIBLE);
+        rated_value.setVisibility(View.INVISIBLE);
+        runtime_label.setVisibility(View.INVISIBLE);
+        runtime_value.setVisibility(View.INVISIBLE);
+        genre_label.setVisibility(View.INVISIBLE);
+        genre_value.setVisibility(View.INVISIBLE);
+        director_label.setVisibility(View.INVISIBLE);
+        director_value.setVisibility(View.INVISIBLE);
+        writer_label.setVisibility(View.INVISIBLE);
+        writer_value.setVisibility(View.INVISIBLE);
+        actors_label.setVisibility(View.INVISIBLE);
+        actors_value.setVisibility(View.INVISIBLE);
+        plot_label.setVisibility(View.INVISIBLE);
+        plot_value.setVisibility(View.INVISIBLE);
+        awards_label.setVisibility(View.INVISIBLE);
+        awards_value.setVisibility(View.INVISIBLE);
+        rating_label.setVisibility(View.INVISIBLE);
+        rating_value.setVisibility(View.INVISIBLE);
+        metascore_label.setVisibility(View.INVISIBLE);
+        metascore_value.setVisibility(View.INVISIBLE);
+        votes_label.setVisibility(View.INVISIBLE);
+        votes_value.setVisibility(View.INVISIBLE);
+        watched.setVisibility(View.INVISIBLE);
     }
 
     void MarkWatched(){

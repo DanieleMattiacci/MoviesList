@@ -16,12 +16,14 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import myself.movieslist.service.SearchFilmService;
+
 public class MainActivity extends ActionBarActivity implements FilmFragment.Callback{
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     Activity thisActivity;
-    public static boolean mTwoPane;
+    public static boolean mTwoPane,firstStart=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class MainActivity extends ActionBarActivity implements FilmFragment.Call
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.film_detail_container, new DetailFragment())
                         .commit();
+
             }
         } else {
             mTwoPane = false;
@@ -89,8 +92,11 @@ public class MainActivity extends ActionBarActivity implements FilmFragment.Call
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
                 } else {
-                    SearchFilmTask search=new SearchFilmTask(thisActivity);
-                    search.execute(input.getText().toString());
+                    Intent intent = new Intent(thisActivity, SearchFilmService.class);
+                    intent.putExtra(SearchFilmService.FILM_TITLE,input.getText().toString());
+                    thisActivity.startService(intent);
+                    /*SearchFilmTask search=new SearchFilmTask(thisActivity);
+                    search.execute(input.getText().toString());*/
                 }
             }
         });
@@ -111,11 +117,8 @@ public class MainActivity extends ActionBarActivity implements FilmFragment.Call
 
     @Override
     public void onItemSelected(String film_title) {
-
         if (mTwoPane) {
-            // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
+            firstStart=false;
             Bundle args = new Bundle();
             args.putString(DetailActivity.FILM_TITLE_KEY, film_title);
 

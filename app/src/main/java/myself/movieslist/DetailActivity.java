@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import myself.movieslist.service.SearchFilmService;
+
 
 public class DetailActivity extends ActionBarActivity {
 Activity thisActivity;
@@ -72,8 +74,9 @@ Activity thisActivity;
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
                 } else {
-                    SearchFilmTask search=new SearchFilmTask(thisActivity);
-                    search.execute(input.getText().toString());
+                    Intent intent = new Intent(thisActivity, SearchFilmService.class);
+                    intent.putExtra(SearchFilmService.FILM_TITLE,input.getText().toString());
+                    thisActivity.startService(intent);
                 }
             }
         });
