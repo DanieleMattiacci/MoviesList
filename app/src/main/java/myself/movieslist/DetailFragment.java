@@ -122,7 +122,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         poster = (ImageView)rootView.findViewById(R.id.poster);
         if(MainActivity.mTwoPane==false)thisActivity=getActivity();
         else {
-            if (MainActivity.firstStart == true) SetInvisibleDetailFragment();
+            if (MainActivity.firstStart == true)  watched.setVisibility(View.INVISIBLE);
         }
         return rootView;
     }
@@ -181,9 +181,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return super.onOptionsItemSelected(item);
     }
 
-    boolean CheckVisibility(){
-        return title.getVisibility()!=View.VISIBLE;
-    }
+    boolean CheckVisibility(){return title.getVisibility()!=View.VISIBLE;}
 
     void SetInvisibleDetailFragment(){
         title.setVisibility(View.INVISIBLE);
@@ -247,17 +245,29 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data != null && data.moveToFirst()) {
             title.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_TITLE_FILM)));
+            release_label.setText("Released: ");
             release_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_RELEASED_DATE)));
+            rated_label.setText("Rated: ");
             rated_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_RATED)));
+            runtime_label.setText("Runtime: ");
             runtime_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_RUNTIME)));
+            genre_label.setText("Genre: ");
             genre_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_GENRE)));
+            director_label.setText("Director: ");
             director_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_DIRECTOR)));
+            writer_label.setText("Writer: ");
             writer_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_WRITER)));
+            actors_label.setText("Actors: ");
             actors_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_ACTOR)));
+            plot_label.setText("Plot: ");
             plot_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_PLOT)));
+            awards_label.setText("Awards: ");
             awards_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_AWARDS)));
+            rating_label.setText("imdbRating: ");
             rating_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_RATING)));
+            metascore_label.setText("Metascore: ");
             metascore_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_METASCORE)));
+            votes_label.setText("Votes: ");
             votes_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_VOTES)));
 
             if(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_WATCHED)).equals("false"))watched.setVisibility(View.INVISIBLE);

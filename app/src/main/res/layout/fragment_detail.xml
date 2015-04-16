@@ -36,7 +36,6 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:paddingTop="5dp"
-            android:text="Released: "
             android:layout_below="@id/film_title"/>
 
         <TextView
@@ -55,7 +54,6 @@
             android:textSize="16sp"
             android:paddingTop="5dp"
             android:textStyle="bold"
-            android:text="Rated: "
             android:layout_below="@id/released_date_label"/>
 
         <TextView
@@ -74,7 +72,6 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:paddingTop="5dp"
-            android:text="Runtime: "
             android:layout_below="@id/rated_label"/>
 
         <TextView
@@ -93,7 +90,6 @@
             android:textSize="16sp"
             android:paddingTop="5dp"
             android:textStyle="bold"
-            android:text="Genre: "
             android:layout_below="@id/runtime_label"/>
 
         <TextView
@@ -112,7 +108,6 @@
             android:textSize="16sp"
             android:paddingTop="5dp"
             android:textStyle="bold"
-            android:text="Director: "
             android:layout_below="@id/genre_label"/>
 
         <TextView
@@ -131,7 +126,6 @@
             android:textSize="16sp"
             android:paddingTop="5dp"
             android:textStyle="bold"
-            android:text="Writer: "
             android:layout_below="@id/director_label"/>
 
         <TextView
@@ -149,7 +143,6 @@
             android:textSize="16sp"
             android:paddingTop="5dp"
             android:textStyle="bold"
-            android:text="Actors: "
             android:layout_below="@id/writer"/>
 
         <TextView
@@ -167,7 +160,6 @@
             android:paddingTop="5dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="Plot: "
             android:layout_below="@id/actors"/>
 
         <TextView
@@ -185,7 +177,6 @@
             android:paddingTop="5dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="Awards: "
             android:layout_below="@id/plot"/>
 
         <TextView
@@ -203,7 +194,6 @@
             android:textSize="16sp"
             android:paddingTop="5dp"
             android:textStyle="bold"
-            android:text="imdbRating: "
             android:layout_below="@id/awards"/>
 
         <TextView
@@ -222,7 +212,6 @@
             android:paddingTop="5dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="Metascore: "
             android:layout_below="@id/rating_label"/>
 
         <TextView
@@ -241,7 +230,6 @@
             android:paddingTop="5dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="Votes: "
             android:layout_below="@id/metascore_label"/>
 
         <TextView
