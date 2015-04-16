@@ -1,6 +1,7 @@
 package myself.movieslist;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,13 +22,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import myself.movieslist.data.DBUtility;
 import myself.movieslist.data.database.FilmContract;
 
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
-   /* ImageView i;
-    Bitmap bitmap;
-*/
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
     private String filmTitle, mFilmDetail;
     private ShareActionProvider mShareActionProvider;
@@ -82,6 +79,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private  TextView votes_label;
     private  TextView votes_value;
     public static ImageView watched;
+    private ImageView poster;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -94,7 +92,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Bundle bundle = this.getArguments();
         if (bundle != null)
             filmTitle = bundle.getString(DetailActivity.FILM_TITLE_KEY, "title");
-
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         title=((TextView) rootView.findViewById(R.id.film_title));
         release_label=((TextView) rootView.findViewById(R.id.released_date_label));
@@ -122,6 +119,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         votes_label= ((TextView) rootView.findViewById(R.id.votes_label));
         votes_value= ((TextView) rootView.findViewById(R.id.votes));
         watched= ((ImageView) rootView.findViewById(R.id.watched));
+        poster = (ImageView)rootView.findViewById(R.id.poster);
         if(MainActivity.mTwoPane==false)thisActivity=getActivity();
         else {
             if (MainActivity.firstStart == true) SetInvisibleDetailFragment();
@@ -132,6 +130,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onResume() {
         super.onResume();
+        mFilmDetail = " See this film: "+filmTitle;
         getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 
@@ -167,11 +166,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             if(MainActivity.mTwoPane==false)thisActivity.finish();
             else  {
                 SetInvisibleDetailFragment();
-               // getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
             }
             return true;
         }else if (id == R.id.action_watched_film) {
-            MarkWatched();
+            ContentValues values = new ContentValues();
+            values.put(FilmContract.FilmEntry.COLUMN_WATCHED, "true");
+            if(getActivity().getApplicationContext().getContentResolver()
+                    .update(FilmContract.FilmEntry.CONTENT_URI, values,
+                            FilmContract.FilmEntry.COLUMN_TITLE_FILM + "= ?",
+                            new String[]{filmTitle})>0)
+                DetailFragment.watched.setVisibility(View.VISIBLE);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -208,12 +212,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         votes_label.setVisibility(View.INVISIBLE);
         votes_value.setVisibility(View.INVISIBLE);
         watched.setVisibility(View.INVISIBLE);
-    }
-
-    void MarkWatched(){
-        DBUtility dbUtil= new DBUtility();
-        boolean watched=dbUtil.updateWatchedFilm(filmTitle,getActivity().getApplicationContext());
-        if(watched==true)DetailFragment.watched.setVisibility(View.VISIBLE);
+        poster.setVisibility(View.INVISIBLE);
     }
 
     private Intent createShareFilmIntent() {
@@ -262,6 +261,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             votes_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_VOTES)));
 
             if(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_WATCHED)).equals("false"))watched.setVisibility(View.INVISIBLE);
+
+            new PosterLoadTask(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_POSTER_URL)), poster).execute();
 
             if (mShareActionProvider != null )
                 mShareActionProvider.setShareIntent(createShareFilmIntent());

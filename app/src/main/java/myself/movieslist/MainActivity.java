@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
 import android.view.Menu;
@@ -19,7 +17,6 @@ import android.widget.Toast;
 import myself.movieslist.service.SearchFilmService;
 
 public class MainActivity extends ActionBarActivity implements FilmFragment.Callback{
-
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     Activity thisActivity;
@@ -43,23 +40,10 @@ public class MainActivity extends ActionBarActivity implements FilmFragment.Call
             }
         } else {
             mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
         }
-        FilmFragment filmFragment =  ((FilmFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_film));
-
-      /*  if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_film, new FilmFragment())
-                    .commit();
-        }*/
+        FilmFragment ff = (FilmFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_film);
     }
-
-    String getOrderBy(){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String order = prefs.getString(getString(R.string.pref_order_by_key),
-                getString(R.string.pref_order_by_rating));
-        return order;
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -95,8 +79,6 @@ public class MainActivity extends ActionBarActivity implements FilmFragment.Call
                     Intent intent = new Intent(thisActivity, SearchFilmService.class);
                     intent.putExtra(SearchFilmService.FILM_TITLE,input.getText().toString());
                     thisActivity.startService(intent);
-                    /*SearchFilmTask search=new SearchFilmTask(thisActivity);
-                    search.execute(input.getText().toString());*/
                 }
             }
         });

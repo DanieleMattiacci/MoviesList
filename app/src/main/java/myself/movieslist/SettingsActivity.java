@@ -43,17 +43,6 @@ public class SettingsActivity extends PreferenceActivity
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
 
-       /* if ( !mBindingPreference ) {
-            if (preference.getKey().equals(getString(R.string.pref_location_key))) {
-                FetchWeatherTask weatherTask = new FetchWeatherTask(this);
-                String location = value.toString();
-                weatherTask.execute(location);
-            } else {
-                // notify code that weather may be impacted
-                getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
-            }
-        }*/
-
         if (preference instanceof ListPreference) {
             ListPreference listPreference = (ListPreference) preference;
             int prefIndex = listPreference.findIndexOfValue(stringValue);

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -19,17 +18,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-
-import myself.movieslist.data.DBUtility;
 import myself.movieslist.data.FilmAdapter;
 import myself.movieslist.data.database.FilmContract;
-import myself.movieslist.data.pojo.ResponseFilm;
 
 public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
-    FragmentActivity mActivity;
     static FilmAdapter mFilmAdapter;
-    ArrayList<ResponseFilm> movies;
     String orderBy;
     ListView listView;
 
@@ -77,28 +70,13 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
     public static final int COLUMN_POSTER=16;
     public static final int COLUMN_WATCHED=17;
 
+    public interface Callback {public void onItemSelected(String title_film);}
 
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
-    public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         */
-        public void onItemSelected(String title_film);
-    }
-
-
-    public FilmFragment() {
-
-    }
+    public FilmFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mActivity=getActivity();
         setHasOptionsMenu(true);
     }
 
@@ -113,38 +91,11 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
         return super.onOptionsItemSelected(item);
     }
 
-  /*  private void RunSearchDialog() {
-        AlertDialog.Builder alert = new AlertDialog.Builder(mActivity);
-        alert.setMessage(R.string.title_search_dialog);
-        final EditText input = new EditText(mActivity);
-        alert.setView(input);
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                if (input.getText().length() == 0) {
-                    Toast toast = Toast.makeText(mActivity.getApplicationContext(), "Insert the title of the film to search", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                } else {
-                    new SearchFilmTask().execute(input.getText().toString());
-                }
-            }
-        });
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // Canceled.
-            }
-        });
-        alert.show();
-    }*/
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_film, container, false);
         orderBy=getOrderBy();
-
-        DBUtility dbUtil= new DBUtility();
-        movies=dbUtil.ReadDb(rootView.getContext(), orderBy);
 
         mFilmAdapter = new FilmAdapter(getActivity(), null, 0);
 
@@ -228,9 +179,5 @@ public class FilmFragment  extends Fragment implements LoaderCallbacks<Cursor> {
         mFilmAdapter.swapCursor(null);
     }
 
-   public void ReloadLoader(){
-       getLoaderManager().restartLoader(FILM_LOADER, null, this);
-    }
-
-
+   public void ReloadLoader(){getLoaderManager().restartLoader(FILM_LOADER, null, this);}
 }
