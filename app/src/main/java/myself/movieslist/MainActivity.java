@@ -20,7 +20,7 @@ public class MainActivity extends ActionBarActivity implements FilmFragment.Call
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     Activity thisActivity;
-    public static boolean mTwoPane,firstStart=true;
+    public static boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +100,6 @@ public class MainActivity extends ActionBarActivity implements FilmFragment.Call
     @Override
     public void onItemSelected(String film_title) {
         if (mTwoPane) {
-            firstStart=false;
             Bundle args = new Bundle();
             args.putString(DetailActivity.FILM_TITLE_KEY, film_title);
 

@@ -121,9 +121,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         watched= ((ImageView) rootView.findViewById(R.id.watched));
         poster = (ImageView)rootView.findViewById(R.id.poster);
         if(MainActivity.mTwoPane==false)thisActivity=getActivity();
-        else {
-            if (MainActivity.firstStart == true)  watched.setVisibility(View.INVISIBLE);
-        }
+
         return rootView;
     }
 
@@ -270,7 +268,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             votes_label.setText("Votes: ");
             votes_value.setText(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_VOTES)));
 
-            if(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_WATCHED)).equals("false"))watched.setVisibility(View.INVISIBLE);
+            if(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_WATCHED)).equals("true"))watched.setImageResource(R.drawable.ic_checked);
 
             new PosterLoadTask(data.getString(data.getColumnIndex(FilmContract.FilmEntry.COLUMN_POSTER_URL)), poster).execute();
 
