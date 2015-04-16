@@ -3,7 +3,6 @@ package myself.movieslist;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,26 +32,18 @@ import java.io.InputStreamReader;
 public class YouTubeApiPlayer extends YouTubeBaseActivity{
 	String filmTitle;
 	static private final String DEVELOPER_KEY = "AIzaSyBCYv3No9ry4VHfIXZl11QYoPMxoEadoJw";
-
     private String VIDEO;
-//	Activity thisActivity;
-
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_youtube);
-	//	thisActivity = this;
 		Bundle extras = getIntent().getExtras();
-       // getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ff9800")));
-	//	getActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		if (extras != null) {
             filmTitle = extras.getString("title");
 
 		}
-
 		new YoutubeAsyncTask().execute();
 	}
 	
@@ -61,8 +52,6 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 		return super.onOptionsItemSelected(item);
 	}
 
-	
-	/**********************************************YoutubeAsyncTask********************************************************/
 	public class YoutubeAsyncTask extends AsyncTask<String, Integer, String> implements OnInitializedListener{
 		protected String title;
 		protected String Url="https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&type=video&key="+DEVELOPER_KEY+"&q="+filmTitle+"+official+trailer";
@@ -77,11 +66,9 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 		}
 
 		protected void onPostExecute(String result){
-			//Log.i("ricevuto", result);
-
 			YouTubePlayerView youTubeView = (YouTubePlayerView)findViewById(R.id.youtube_view);
-            final TextView titoloView = (TextView) findViewById(R.id.titolo);
-            final TextView descrizioneView = (TextView) findViewById(R.id.descrizione);
+            final TextView titleTextView = (TextView) findViewById(R.id.titolo);
+            final TextView descriptionTextView = (TextView) findViewById(R.id.descrizione);
             JSONObject  jObject = null;
             try {
                 jObject = new JSONObject(result);
@@ -96,16 +83,11 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
             }
             if(item!=null){
 
-                VIDEO = RicavaVideoId(item);
+                VIDEO = getVideoId(item);
 
-                String titolo=RicavaTitolo(item);
-                String descrizione=RicavaDescrizione(item);
-
-                titoloView.setText(titolo);
-                descrizioneView.setText(descrizione);
+                titleTextView.setText(getTitle(item));
+                descriptionTextView.setText(getDescription(item));
 			youTubeView.initialize(DEVELOPER_KEY, this);
-
-
 
 			}else ShowErrorMessageNoResults();
 		}
@@ -113,7 +95,7 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 
 
 
-		private String RicavaVideoId(JSONObject item){
+		private String getVideoId(JSONObject item){
 			String videoId = null;
 			try {
 				JSONObject id=item.getJSONObject("id");
@@ -123,46 +105,39 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 			} catch (JSONException e) {
 				ShowErrorMessage();
 			}
-            Log.i("","Videoid: "+videoId);
 			return videoId;
 		}
 
-		private String RicavaTitolo(JSONObject item){
-			String titolo="";
-
+		private String getTitle(JSONObject item){
+			String title="";
 			try {
 				JSONObject snippet=item.getJSONObject("snippet");
 
-				titolo = snippet.getString("title");
-                Log.i("","titolo: "+titolo);
+                title = snippet.getString("title");
 			} catch (JSONException e) {
 				ShowErrorMessage();
 			}
 
-			return titolo;
+			return title;
 		}
 
-		private String RicavaDescrizione(JSONObject item){
-			String descrizione="";
+		private String getDescription(JSONObject item){
+			String description="";
 
 			try {
 				JSONObject snippet=item.getJSONObject("snippet");
 
-				descrizione = snippet.getString("description");
-                Log.i("","descrizione: "+descrizione);
+                description = snippet.getString("description");;
 			} catch (JSONException e) {
 				ShowErrorMessage();
 			}
 
-			return descrizione;
+			return description;
 		}
 
 		private String SendHttpGet(String title){
             title=title.replace(" ","+");
-			//titolo=ReplaceChar(titolo);
-			//autore=ReplaceChar(autore);
 			String Url="https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&type=video&key="+DEVELOPER_KEY+"&q="+title+"+official+trailer";
-			Log.i("inviato Url youtube",Url);
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(Url);
 			String resp = null;
@@ -199,12 +174,12 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 		}
 
 		private void ShowErrorMessageNoResults(){
-			Toast.makeText(getApplicationContext(), "La ricerca su Youtube non ha trovato nessun video", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "No results from the research", Toast.LENGTH_LONG).show();
 			finish();
 		}
 
 		private void ShowErrorMessage(){
-			Toast.makeText(getApplicationContext(), "Errore di connessione a Youtube", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "Connection error to Youtube", Toast.LENGTH_LONG).show();
 			finish();
 		}
 
@@ -220,5 +195,4 @@ public class YouTubeApiPlayer extends YouTubeBaseActivity{
 
 		}
 	}
-	/****************************************************************************************************************/
 }

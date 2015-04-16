@@ -52,27 +52,24 @@ public class TestProvider extends AndroidTestCase {
 
 
     public void testGetType() {
-        // content://myself.movieslist/film/
         String type = mContext.getContentResolver().getType(FilmEntry.CONTENT_URI);
-        // vnd.android.cursor.dirmyself.movieslistp/weather
+
         assertEquals(FilmEntry.CONTENT_TYPE, type);
 
         String testFilmTitle = "LOL";
-        // content://com.example.android.sunshine.app/film/LOL
+
         type = mContext.getContentResolver().getType(
-                FilmEntry.buildFilmTitle(testFilmTitle));
+                FilmEntry.buildFilmWithTitle(testFilmTitle));
         assertEquals(FilmEntry.CONTENT_TYPE, type);
     }
 
     public void testBasicFilmQuery() {
-        // insert our test records into the database
         FilmDbHelper dbHelper = new FilmDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues testValues = TestDb.createFilmValues();
         long filmRowId = insertFilmValues(mContext);
 
-        // Fantastic.  Now that we have a location, add some tvseries!
         ContentValues values = TestDb.createFilmValues();
 
         long filmRowId2 = db.insert(FilmEntry.TABLE_NAME, null, values);
@@ -80,7 +77,6 @@ public class TestProvider extends AndroidTestCase {
 
         db.close();
 
-        // Test the basic content provider query
         Cursor filmCursor = mContext.getContentResolver().query(
                 FilmContract.FilmEntry.CONTENT_URI,
                 null,
@@ -88,8 +84,6 @@ public class TestProvider extends AndroidTestCase {
                 null,
                 null
         );
-
-        // Make sure we get the correct cursor out of the database
         validateCursor("testBasicFilmQuery", filmCursor, values);
     }
 
@@ -113,7 +107,6 @@ public class TestProvider extends AndroidTestCase {
     }
 
     long insertFilmValues(Context context) {
-        // insert our test records into the database
         FilmDbHelper dbHelper = new FilmDbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues testValues = TestDb.createFilmValues();
@@ -121,7 +114,6 @@ public class TestProvider extends AndroidTestCase {
         long locationRowId;
         locationRowId = db.insert(FilmEntry.TABLE_NAME, null, testValues);
 
-        // Verify we got a row back.
         assertTrue("Error: Failure to insert Film Values", locationRowId != -1);
 
         return locationRowId;
@@ -138,57 +130,14 @@ public class TestProvider extends AndroidTestCase {
 
         Cursor cursor = mContext.getContentResolver().query(
                 FilmEntry.CONTENT_URI,
-                null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                null  // sort order
+                null,
+                null,
+                null,
+                null
         );
 
         TestDb.validateCursor(cursor, testValues);
-
-        // Now see if we can successfully query if we include the row id
-      /*  cursor = mContext.getContentResolver().query(
-                FilmEntry.buildFilmUri(filmRowId),
-                null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                null  // sort order
-        );
-
-        TestDb.validateCursor(cursor, testValues);*/
     }
-
-    /*public void testUpdateFilm() {
-        ContentValues values = TestDb.createFilmValues();
-
-        Uri filmnUri = mContext.getContentResolver().
-                insert(FilmEntry.CONTENT_URI, values);
-        long filmRowId = ContentUris.parseId(filmnUri);
-
-        assertTrue(filmRowId != -1);
-        Log.d(LOG_TAG, "New row id: " + filmRowId);
-
-        ContentValues updatedValues = new ContentValues(values);
-        updatedValues.put(FilmEntry._ID, filmRowId);
-        updatedValues.put(FilmEntry.WATCHED, "true");
-        String testFilmTitle = "LOL";
-        int count = mContext.getContentResolver().update(
-                FilmEntry.CONTENT_URI, updatedValues, FilmEntry._ID + "= ?",
-                new String[] { testFilmTitle});
-
-        assertEquals(count, 1);
-
-        // A cursor is your primary interface to the query results.
-        Cursor cursor = mContext.getContentResolver().query(
-                FilmEntry.buildFilmUri(filmRowId),
-                null,
-                null, // Columns for the "where" clause
-                null, // Values for the "where" clause
-                null // sort order
-        );
-
-        TestDb.validateCursor(cursor, updatedValues);
-    }*/
 
     public void testDeleteRecordsAtEnd() {
         deleteAllRecords();
@@ -196,22 +145,15 @@ public class TestProvider extends AndroidTestCase {
 
     public void testProviderRegistry() {
         PackageManager pm = mContext.getPackageManager();
-
-        // We define the component name based on the package name from the context and the
-        // tvseriesProvider class.
         ComponentName componentName = new ComponentName(mContext.getPackageName(),
                 FilmProvider.class.getName());
         try {
-            // Fetch the provider info using the component name from the PackageManager
-            // This throws an exception if the provider isn't registered.
             ProviderInfo providerInfo = pm.getProviderInfo(componentName, 0);
 
-            // Make sure that the registered authority matches the authority from the Contract.
             assertEquals("Error: FilmProvider registered with authority: " + providerInfo.authority +
                             " instead of authority: " + FilmContract.CONTENT_AUTHORITY,
                     providerInfo.authority, FilmContract.CONTENT_AUTHORITY);
         } catch (PackageManager.NameNotFoundException e) {
-            // I guess the provider isn't registered correctly.
             assertTrue("Error: FilmProvider not registered at " + mContext.getPackageName(),
                     false);
         }

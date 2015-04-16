@@ -5,15 +5,11 @@
         android:title="@string/action_share"
         app:showAsAction="always"
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
-    <item android:id="@+id/action_search_film"
-        android:title="@string/action_search_film"
-        android:icon="@drawable/ic_search"
-        app:showAsAction="always"/>
-    <item android:id="@+id/action_settings"
+    <!--<item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"
         app:showAsAction="never" />
-
+-->
     <item android:id="@+id/action_watch_trailer"
         android:title="@string/action_watch_trailer"
         android:orderInCategory="100"

@@ -34,15 +34,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="myself.movieslist.MainActivity" />
         </activity>
-
-        <provider
-            android:name="myself.movieslist.data.database.FilmProvider"
-            android:authorities="myself.movieslist" />
-
         <activity
             android:name="myself.movieslist.YouTubeApiPlayer"
             android:label="@string/title_activity_youtube" >
         </activity>
+        <provider
+            android:name="myself.movieslist.data.database.FilmProvider"
+            android:authorities="myself.movieslist" />
+        <service android:name=".service.SearchFilmService"/>
     </application>
 
 </manifest>

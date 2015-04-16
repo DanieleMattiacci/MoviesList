@@ -24,11 +24,8 @@ public class FilmProvider  extends ContentProvider {
                 FilmContract.FilmEntry.TABLE_NAME);
     }
 
-    //location.location_setting = ? AND date = ?
     private static final String sDaySelection =
-            FilmContract.FilmEntry.TABLE_NAME +"." + FilmContract.FilmEntry.TITLE_FILM + " = ? ";
-
-
+            FilmContract.FilmEntry.TABLE_NAME +"." + FilmContract.FilmEntry.COLUMN_TITLE_FILM + " = ? ";
 
     private Cursor getFilmTitleFromUri(Uri uri, String[] projection, String sortOrder) {
 
@@ -67,12 +64,10 @@ public class FilmProvider  extends ContentProvider {
                         String sortOrder) {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
-            // "weather/title_film"
             case FILM_WITH_TITLE: {
                 retCursor = getFilmTitleFromUri(uri, projection, sortOrder);
                 break;
             }
-            // "weather"
             case FILM: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         FilmContract.FilmEntry.TABLE_NAME,
@@ -140,7 +135,6 @@ public class FilmProvider  extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        // Because a null deletes all rows
         if (selection == null || rowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
