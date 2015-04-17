@@ -25,7 +25,6 @@ public class Utility {
     }
 
     static ContentValues ObjectToContentValues(ResponseFilm resp) {
-        Log.i("", resp.getPoster());
         ContentValues values = new ContentValues();
         values.put(FilmContract.FilmEntry.COLUMN_TITLE_FILM, resp.getTitle());
         values.put(FilmContract.FilmEntry.COLUMN_YEAR, resp.getYear());

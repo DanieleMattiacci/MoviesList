@@ -37,7 +37,7 @@ public class SearchFilmService extends IntentService {
         String filmJsonStr = getJsonString(titleFilm);
         String title=getTitleFromJson(filmJsonStr);
 
-        if(title==null)Log.i(LOG_TAG,titleFilm+" not found");
+        if(title==null)Log.i(LOG_TAG,"Movie not found");
         else {
             if (!alreadyPresent(title)) {
                 Vector<ContentValues> cVVector = new Vector<ContentValues>();
@@ -50,9 +50,9 @@ public class SearchFilmService extends IntentService {
                     ContentValues[] cvArray = new ContentValues[cVVector.size()];
                     cVVector.toArray(cvArray);
                     this.getContentResolver().bulkInsert(FilmContract.FilmEntry.CONTENT_URI, cvArray);
-                    Log.i(LOG_TAG,titleFilm+" added to the list");
+                    Log.i(LOG_TAG,"Movie added to the list");
                 }
-            }else Log.i(LOG_TAG,titleFilm+" already present in the list");
+            }else Log.i(LOG_TAG,"Movie already present in the list");
         }
     }
 
