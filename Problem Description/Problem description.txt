@@ -1,0 +1,13 @@
+MoviesList Problem Description
+
+	MoviesList is an app that allows the user to:
+
+	   -search quickly for a movie by typing the title;
+
+       -display information about the movie;
+
+       -wacth the trailer of a film on youtube;
+	
+	   -tell to friends to see a movie (by sharing the title);
+	
+	   -maintain a list of movies to watch and already watched.
