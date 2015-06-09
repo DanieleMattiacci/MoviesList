@@ -1,6 +1,5 @@
 package myself.movieslist.service;
 
-import android.app.Activity;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,7 +10,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -30,7 +28,6 @@ import static myself.movieslist.Utility.getTitleFromJson;
 
 public class SearchFilmService extends IntentService {
     public static final String FILM_TITLE = "service_title_film";
-    private final String LOG_TAG = SearchFilmService.class.getSimpleName();
 
     public SearchFilmService() {
         super("MoviesList");
@@ -46,7 +43,7 @@ public class SearchFilmService extends IntentService {
         if(title==null)ShowToastInIntentService("Movie not found");
         else {
             if (!alreadyPresent(title)) {
-                Vector<ContentValues> cVVector = new Vector<ContentValues>();
+                Vector<ContentValues> cVVector = new Vector<>();
 
                 ContentValues filmValues = CreateFilmValues(filmJsonStr);
 
@@ -112,7 +109,6 @@ public class SearchFilmService extends IntentService {
             }
             filmJsonStr = buffer.toString();
         } catch (IOException e) {
-           // Log.i(LOG_TAG,"Internet Connection Problem! retry Later.");
             ShowToastInIntentService("Internet Connection Problem! retry Later.");
             return null;
         } finally {
@@ -123,7 +119,6 @@ public class SearchFilmService extends IntentService {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    //Log.e(LOG_TAG, "Error closing stream", e);
                 }
             }
         }
@@ -177,5 +172,5 @@ public class SearchFilmService extends IntentService {
                 toast1.show();
             }
         });
-    };
+    }
 }
