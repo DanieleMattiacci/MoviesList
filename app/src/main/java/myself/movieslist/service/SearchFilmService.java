@@ -1,13 +1,18 @@
 package myself.movieslist.service;
 
+import android.app.Activity;
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,13 +36,14 @@ public class SearchFilmService extends IntentService {
         super("MoviesList");
     }
 
+
     @Override
     protected void onHandleIntent(Intent intent) {
         String titleFilm = intent.getStringExtra(FILM_TITLE);
         String filmJsonStr = getJsonString(titleFilm);
         String title=getTitleFromJson(filmJsonStr);
 
-        if(title==null)Log.i(LOG_TAG,"Movie not found");
+        if(title==null)ShowToastInIntentService("Movie not found");
         else {
             if (!alreadyPresent(title)) {
                 Vector<ContentValues> cVVector = new Vector<ContentValues>();
@@ -50,9 +56,9 @@ public class SearchFilmService extends IntentService {
                     ContentValues[] cvArray = new ContentValues[cVVector.size()];
                     cVVector.toArray(cvArray);
                     this.getContentResolver().bulkInsert(FilmContract.FilmEntry.CONTENT_URI, cvArray);
-                    Log.i(LOG_TAG,"Movie added to the list");
+                    ShowToastInIntentService("Movie added to the list");
                 }
-            }else Log.i(LOG_TAG,"Movie already present in the list");
+            }else ShowToastInIntentService("Movie already present in the list");
         }
     }
 
@@ -106,7 +112,8 @@ public class SearchFilmService extends IntentService {
             }
             filmJsonStr = buffer.toString();
         } catch (IOException e) {
-            Log.i(LOG_TAG,"Internet Connection Problem! retry Later.");
+           // Log.i(LOG_TAG,"Internet Connection Problem! retry Later.");
+            ShowToastInIntentService("Internet Connection Problem! retry Later.");
             return null;
         } finally {
             if (urlConnection != null) {
@@ -116,7 +123,7 @@ public class SearchFilmService extends IntentService {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
+                    //Log.e(LOG_TAG, "Error closing stream", e);
                 }
             }
         }
@@ -161,4 +168,14 @@ public class SearchFilmService extends IntentService {
         );
         return cursor;
     }
+
+    public void ShowToastInIntentService(final String sText)
+    {  final Context MyContext = this;
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {  @Override public void run()
+            {  Toast toast1 = Toast.makeText(MyContext, sText, Toast.LENGTH_LONG);
+                toast1.show();
+            }
+        });
+    };
 }
